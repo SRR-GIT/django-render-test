@@ -1,6 +1,5 @@
-from django.contrib import admin
-from .models import Document
+from django.apps import AppConfig
 
-@admin.register(Document)
-class DocumentAdmin(admin.ModelAdmin):
-    list_display = ("title", "created_at")
+class DocumentsConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "documents"
