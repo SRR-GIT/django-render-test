@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+  <head><meta charset="utf-8"><title>Documents</title></head>
+  <body>
+    <h1>Documents</h1>
+    <ul>
+      {% for d in docs %}
+        <li>
+          {{ d.title }}
+          {% if d.file %}- <a href="{{ d.file.url }}">Télécharger</a>{% endif %}
+        </li>
+      {% empty %}
+        <li>Aucun document</li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>
