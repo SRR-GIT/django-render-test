@@ -75,3 +75,16 @@ STORAGES = {
 }
     
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Ressources documentaires",
+    "site_header": "Gestion documentaire",
+    "site_brand": "Docs",
+    "welcome_sign": "Bienvenue dans l’administration",
+    "search_model": ["documents.Document"],
+    "topmenu_links": [
+        {"name": "Site", "url": "/", "new_window": True},
+        {"model": "documents.Document"},
+    ],
+}
+
