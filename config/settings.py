@@ -69,6 +69,8 @@ STORAGES = {
     }
 }
     
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
 if os.getenv("AUTO_CREATE_SUPERUSER") == "1":
     from django.contrib.auth import get_user_model
     User = get_user_model()
@@ -78,5 +80,3 @@ if os.getenv("AUTO_CREATE_SUPERUSER") == "1":
             email="admin@example.com",
             password=os.getenv("ADMIN_PASSWORD", "change-me"),
         )
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
