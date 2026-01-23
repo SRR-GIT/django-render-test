@@ -11,7 +11,7 @@ class Command(BaseCommand):
             return
 
         username = os.getenv("ADMIN_USERNAME", "admin")
-        email = os.getenv("ADMIN_EMAIL", "admin@example.com")
+        email = os.getenv("ADMIN_EMAIL", "s_rossier@Tbluewin.ch")
         password = os.getenv("ADMIN_PASSWORD")
 
         if not password:
