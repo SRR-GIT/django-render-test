@@ -70,13 +70,3 @@ STORAGES = {
 }
     
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-if os.getenv("AUTO_CREATE_SUPERUSER") == "1":
-    from django.contrib.auth import get_user_model
-    User = get_user_model()
-    if not User.objects.filter(username="admin").exists():
-        User.objects.create_superuser(
-            username="admin",
-            email="admin@example.com",
-            password=os.getenv("ADMIN_PASSWORD", "change-me"),
-        )
