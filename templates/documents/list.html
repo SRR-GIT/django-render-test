@@ -1,16 +1,13 @@
 <!doctype html>
 <html>
-  <head><meta charset="utf-8"><title>Documents</title></head>
+  <head><meta charset="utf-8"><title>Procédures</title></head>
   <body>
-    <h1>Documents</h1>
+    <h1>Procédures</h1>
     <ul>
-      {% for d in docs %}
-        <li>
-          {{ d.title }}
-          {% if d.file %}- <a href="{{ d.file.url }}">Télécharger</a>{% endif %}
-        </li>
+      {% for p in procedures %}
+        <li>{{ p.school }} — {{ p.title }} ({{ p.get_status_display }})</li>
       {% empty %}
-        <li>Aucun document</li>
+        <li>Aucune procédure</li>
       {% endfor %}
     </ul>
   </body>
