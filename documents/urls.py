@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import document_list
+from .views import procedure_list
 
 urlpatterns = [
-    path("", document_list, name="document_list"),
+    path("", procedure_list, name="procedure_list"),
 ]
+
