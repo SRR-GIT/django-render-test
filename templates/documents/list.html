@@ -7,7 +7,13 @@
       {% for p in procedures %}
         <li>{{ p.school }} — {{ p.title }} ({{ p.get_status_display }})</li>
       {% empty %}
-        <li>Aucune procédure</li>
+        <li>
+  <a href="{% url 'procedure_detail' p.pk %}">
+    {{ p.school }} — {{ p.title }}
+  </a>
+  ({{ p.get_status_display }})
+</li>
+
       {% endfor %}
     </ul>
   </body>
