@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Procédures</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <h1>Procédures</h1>
+
+  <ul>
+    {% for p in procedures %}
+      <li>
+        <a href="{% url 'procedure_detail' p.pk %}">
+          {{ p.school }} — {{ p.title }}
+        </a>
+        ({{ p.get_status_display }})
+      </li>
+    {% empty %}
+      <li>Aucune procédure</li>
+    {% endfor %}
+  </ul>
+
+  <p><a href="{% url 'logout' %}">Se déconnecter</a></p>
+</body>
+</html>
