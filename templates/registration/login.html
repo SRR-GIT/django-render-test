@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Connexion</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: sans-serif; max-width: 420px; margin: 3rem auto; padding: 0 1rem; }
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 1.2rem; }
+    label { display:block; margin-top: .8rem; }
+    input { width:100%; padding:.6rem; margin-top:.3rem; }
+    button { margin-top: 1rem; width:100%; padding:.7rem; cursor:pointer; }
+    .error { background:#fff3f3; border:1px solid #ffcccc; padding:.6rem; border-radius:8px; margin-top:.8rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Connexion</h1>
+
+    {% if form.errors %}
+      <div class="error">
+        Identifiants invalides. Vérifie le nom d’utilisateur et le mot de passe.
+      </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'login' %}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+
+      <label for="id_username">Nom d’utilisateur</label>
+      <input type="text" name="username" autofocus required id="id_username">
+
+      <label for="id_password">Mot de passe</label>
+      <input type="password" name="password" required id="id_password">
+
+      <button type="submit">Se connecter</button>
+    </form>
+
+    <p style="margin-top:1rem;">
+      <a href="{% url 'password_reset' %}">Mot de passe oublié ?</a>
+    </p>
+  </div>
+</body>
+</html>
