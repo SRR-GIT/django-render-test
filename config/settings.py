@@ -90,3 +90,7 @@ JAZZMIN_SETTINGS = {
     ],
 }
 
+CSRF_TRUSTED_ORIGINS = [o for o in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if o]
+
+
+
