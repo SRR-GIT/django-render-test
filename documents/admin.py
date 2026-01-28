@@ -8,8 +8,8 @@ from .models import (
 
 @admin.register(School)
 class SchoolAdmin(admin.ModelAdmin):
-    list_display = ("nom", "commune", "code")
-    search_fields = ("nom", "commune", "code")
+    list_display = ("name", "commune", "code")
+    search_fields = ("name", "commune", "code")
     filter_horizontal = ("groups",)
     
 class ProcedureTemplateSectionInline(admin.TabularInline):
