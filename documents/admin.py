@@ -6,6 +6,7 @@ from .models import (
     ProcedureDocument,
 )
 
+@admin.register(School)
 class SchoolAdmin(admin.ModelAdmin):
     list_display = ("name", "commune", "code")
     search_fields = ("name", "commune", "code")
