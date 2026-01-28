@@ -26,3 +26,9 @@ def procedure_detail(request, pk):
             "documents": documents,
         },
     )
+
+@login_required
+def school_list(request):
+    user_groups = request.user.groups.all()
+    schools = School.objects.filter(groups__in=user_groups).distinct()
+    return render(request, "schools/list.html", {"schools": schools})
