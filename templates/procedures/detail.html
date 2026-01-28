@@ -1,43 +1,55 @@
 <!doctype html>
-<html>
+<html lang="fr">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ procedure.title }}</title>
-  <style>
-    body { font-family: sans-serif; max-width: 900px; margin: auto; }
-    section { margin-bottom: 2rem; }
-    h2 { border-bottom: 1px solid #ddd; padding-bottom: .3rem; }
-  </style>
 </head>
 <body>
+  <p>
+    <a href="{% url 'procedure_list' %}?school={{ procedure.school.id }}">
+      &larr; Retour aux procédures ({{ procedure.school.name }})
+    </a>
+  </p>
 
-<h1>{{ procedure.title }}</h1>
-<p>
-  <strong>Établissement :</strong> {{ procedure.school }}<br>
-  <strong>Statut :</strong> {{ procedure.get_status_display }}<br>
-  <strong>Version :</strong> {{ procedure.version }}
-</p>
+  <h1>{{ procedure.title }}</h1>
+  <p>
+    Établissement : <strong>{{ procedure.school.name }}</strong><br>
+    Statut : {{ procedure.get_status_display }}<br>
+    Version : {{ procedure.version|default:"-" }}<br>
+    Dernière mise à jour : {{ procedure.updated_at }}
+  </p>
 
-{% for s in sections %}
-<section>
-  <h2>{{ s.title }}</h2>
-  <div>{{ s.body_html|safe }}</div>
-</section>
-{% empty %}
-<p>Aucune section définie.</p>
-{% endfor %}
+  <hr>
 
-{% if documents %}
-<h2>Documents associés</h2>
-<ul>
-  {% for d in documents %}
-    <li>
-      {{ d.get_doc_type_display }} —
-      <a href="{{ d.file.url }}">{{ d.title }}</a>
-    </li>
+  <h2>Sections</h2>
+  {% for s in sections %}
+    <section style="margin-bottom: 24px;">
+      <h3>{{ s.title }}</h3>
+      <div>{{ s.body_html|safe }}</div>
+    </section>
+  {% empty %}
+    <p>Aucune section.</p>
   {% endfor %}
-</ul>
-{% endif %}
 
+  <hr>
+
+  <h2>Documents (PDF, etc.)</h2>
+  {% for d in documents %}
+    <div>
+      <strong>{{ d.title }}</strong> ({{ d.get_doc_type_display }}) —
+      <a href="{{ d.file.url }}" target="_blank" rel="noopener">ouvrir</a>
+    </div>
+  {% empty %}
+    <p>Aucun document.</p>
+  {% endfor %}
+
+  <hr>
+  <p>
+    <a href="/admin/documents/procedure/{{ procedure.id }}/change/">
+      Modifier dans l’admin (Jazzmin)
+    </a>
+  </p>
 </body>
 </html>
+
