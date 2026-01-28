@@ -36,7 +36,6 @@ class ProcedureAdmin(admin.ModelAdmin):
     search_fields = ("title", "school__name")
     inlines = [ProcedureSectionInline, ProcedureDocumentInline]
 
-admin.site.register(School)
 admin.site.register(ProcedureTemplateSection)
 admin.site.register(ProcedureSection)
 admin.site.register(ProcedureDocument)
