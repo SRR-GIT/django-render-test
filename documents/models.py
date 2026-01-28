@@ -1,10 +1,18 @@
 from django.conf import settings
 from django.db import models
+from django.contrib.auth.models import Group
 
 class School(models.Model):
-    name = models.CharField(max_length=200)
-    commune = models.CharField(max_length=200, blank=True)
-    code = models.CharField(max_length=50, blank=True, unique=True)
+    name = models.CharField(max_length=255)
+    commune = models.CharField(max_length=255, blank=True)
+    code = models.CharField(max_length=50, blank=True)
+
+    groups = models.ManyToManyField(
+        Group,
+        blank=True,
+        related_name="schools",
+        help_text="Groupes autorisés à accéder à cette école",
+    )
 
     def __str__(self):
         return self.name
