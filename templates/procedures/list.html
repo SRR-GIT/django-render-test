@@ -2,25 +2,48 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <title>Procédures</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Procédures</title>
 </head>
 <body>
-  <h1>Procédures</h1>
+  <p><a href="{% url 'school_list' %}">&larr; Établissements</a></p>
 
-  <ul>
-    {% for p in procedures %}
-      <li>
-        <a href="{% url 'procedure_detail' p.pk %}">
-          {{ p.school }} — {{ p.title }}
-        </a>
-        ({{ p.get_status_display }})
-      </li>
-    {% empty %}
-      <li>Aucune procédure</li>
-    {% endfor %}
-  </ul>
+  {% if school %}
+    <h1>Procédures — {{ school.name }}</h1>
+  {% else %}
+    <h1>Toutes les procédures</h1>
+  {% endif %}
 
-  <p><a href="{% url 'logout' %}">Se déconnecter</a></p>
+  <form method="get">
+    <label>Filtrer par établissement :</label>
+    <select name="school" onchange="this.form.submit()">
+      <option value="">— Tous —</option>
+      {% for s in schools %}
+        <option value="{{ s.id }}" {% if school and s.id == school.id %}selected{% endif %}>
+          {{ s.name }}
+        </option>
+      {% endfor %}
+    </select>
+    <noscript><button type="submit">OK</button></noscript>
+  </form>
+
+  <hr>
+
+  {% if procedures %}
+    <ul>
+      {% for p in procedures %}
+        <li>
+          <a href="{% url 'procedure_detail' p.id %}">{{ p.title }}</a>
+          — <em>{{ p.school.name }}</em>
+          — {{ p.get_status_display }} — MAJ {{ p.updated_at }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Aucune procédure.</p>
+  {% endif %}
+
+  <p><a href="/admin/documents/procedure/">Gérer dans l’admin</a></p>
 </body>
 </html>
+
