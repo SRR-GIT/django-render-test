@@ -1,4 +1,4 @@
-<!doctype html>
+<!--<!doctype html>
 <html lang="fr">
 <head>
   <meta charset="utf-8">
@@ -51,5 +51,104 @@
     </a>
   </p>
 </body>
-</html>
+</html>-->
+{% extends "base.html" %}
+{% block title %}{{ procedure.title }}{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+  <div>
+    <h1 class="h3 mb-1">{{ procedure.title }}</h1>
+    <div class="text-muted">
+      Établissement : <strong>{{ procedure.school.name }}</strong>
+      <span class="mx-2">•</span>
+      Dernière mise à jour : {{ procedure.updated_at|date:"d/m/Y H:i" }}
+    </div>
+
+    <div class="mt-2">
+      {% if procedure.status == "validated" %}
+        <span class="badge text-bg-success">Validée</span>
+      {% elif procedure.status == "draft" %}
+        <span class="badge text-bg-warning">Brouillon</span>
+      {% else %}
+        <span class="badge text-bg-secondary">Archivée</span>
+      {% endif %}
+      {% if procedure.version %}
+        <span class="badge text-bg-light border">Version {{ procedure.version }}</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-secondary" href="{% url 'procedure_list' %}">Retour</a>
+    <a class="btn btn-outline-dark" href="{% url 'school_list' %}">Établissements</a>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <strong>Procédure</strong>
+        <span class="text-muted ms-2 small">Sections</span>
+      </div>
+      <div class="card-body">
+        {% if sections %}
+          <div class="accordion" id="sectionsAcc">
+            {% for s in sections %}
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="h{{ s.id }}">
+                  <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button"
+                          data-bs-toggle="collapse" data-bs-target="#c{{ s.id }}">
+                    {{ s.title }}
+                  </button>
+                </h2>
+                <div id="c{{ s.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
+                     data-bs-parent="#sectionsAcc">
+                  <div class="accordion-body">
+                    {% if s.body_html %}
+                      {{ s.body_html|safe }}
+                    {% else %}
+                      <p class="text-muted mb-0">Aucun contenu.</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted mb-0">Aucune section.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <strong>Documents</strong>
+      </div>
+      <div class="card-body">
+        {% if documents %}
+          <div class="list-group">
+            {% for d in documents %}
+              <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-start"
+                 href="{{ d.file.url }}" target="_blank" rel="noopener">
+                <div class="me-2">
+                  <div class="fw-semibold">{{ d.title }}</div>
+                  <div class="small text-muted">{{ d.uploaded_at|date:"d/m/Y H:i" }}</div>
+                </div>
+                <span class="badge text-bg-light border text-uppercase">{{ d.doc_type }}</span>
+              </a>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted mb-0">Aucun document.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
 
