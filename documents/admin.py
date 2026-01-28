@@ -6,6 +6,12 @@ from .models import (
     ProcedureDocument,
 )
 
+@admin.register(School)
+class SchoolAdmin(admin.ModelAdmin):
+    list_display = ("nom", "commune", "code")
+    search_fields = ("nom", "commune", "code")
+    filter_horizontal = ("groups",)
+    
 class ProcedureTemplateSectionInline(admin.TabularInline):
     model = ProcedureTemplateSection
     extra = 0
