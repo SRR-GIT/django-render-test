@@ -2,7 +2,7 @@ from django.conf import settings
 from django.db import models
 
 class School(models.Model):
-    nom = models.CharField(max_length=200)
+    name = models.CharField(max_length=200)
     commune = models.CharField(max_length=200, blank=True)
     code = models.CharField(max_length=50, blank=True, unique=True)
 
