@@ -50,8 +50,8 @@ class ProcedureDocumentAdmin(admin.ModelAdmin):
 class SchoolAdmin(admin.ModelAdmin):
     list_display = ("name", "commune", "code")
     search_fields = ("name", "commune", "code")
-    filter_horizontal = ("groups",)
-    inlines = [SchoolRoleInline]
+    #filter_horizontal = ("groups",)
+    #inlines = [SchoolRoleInline]
 
 
 # --- MODÈLES ---
