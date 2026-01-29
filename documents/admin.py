@@ -1,45 +1,13 @@
 from django.contrib import admin
-from django.contrib.auth.models import Group
 from .models import (
-    School,SchoolRole,
-    ProcedureTemplate, 
+    School,
+    SchoolRole,
+    ProcedureTemplate,
     ProcedureTemplateSection,
-    Procedure, 
+    Procedure,
     ProcedureSection,
     ProcedureDocument,
 )
-
-# --- INLINES ---
-class ProcedureTemplateSectionInline(admin.TabularInline):
-    model = ProcedureTemplateSection
-    extra = 0
-
-class ProcedureSectionInline(admin.TabularInline):
-    model = ProcedureSection
-    extra = 0
-    filter_horizontal = ("visible_to_groups",)
-    fields = ("order", "title", "key", "body_html", "visible_to_groups")
-
-class ProcedureDocumentInline(admin.TabularInline):
-    model = ProcedureDocument
-    extra = 0
-
-
-# --- MASQUER LES MODÈLES TECHNIQUES DU MENU ---
-@admin.register(ProcedureTemplateSection)
-class ProcedureTemplateSectionAdmin(admin.ModelAdmin):
-    def has_module_permission(self, request):
-        return False
-
-@admin.register(ProcedureSection)
-class ProcedureSectionAdmin(admin.ModelAdmin):
-    def has_module_permission(self, request):
-        return False
-
-@admin.register(ProcedureDocument)
-class ProcedureDocumentAdmin(admin.ModelAdmin):
-    def has_module_permission(self, request):
-        return False
 
 # -------------------------
 # Rôles par établissement
@@ -48,8 +16,7 @@ class ProcedureDocumentAdmin(admin.ModelAdmin):
 class SchoolRoleInline(admin.TabularInline):
     model = SchoolRole
     extra = 0
-    autocomplete_fields = ("group", "users")  # nécessite search_fields sur User admin
-    # pour ManyToManyField "users"
+    autocomplete_fields = ("group", "users")
     filter_horizontal = ("users",)
 
 
@@ -62,15 +29,11 @@ class SchoolRoleAdmin(admin.ModelAdmin):
     autocomplete_fields = ("school", "group")
 
 
-
-# --- ÉTABLISSEMENTS ---
 @admin.register(School)
 class SchoolAdmin(admin.ModelAdmin):
     list_display = ("name", "commune", "code")
     search_fields = ("name", "commune", "code")
     inlines = [SchoolRoleInline]
-    #filter_horizontal = ("groups",)
-    #inlines = [SchoolRoleInline]
 
 
 # -------------------------
@@ -88,15 +51,6 @@ class ProcedureTemplateAdmin(admin.ModelAdmin):
     inlines = [ProcedureTemplateSectionInline]
 
 
-@admin.register(ProcedureTemplateSection)
-class ProcedureTemplateSectionAdmin(admin.ModelAdmin):
-    list_display = ("template", "order", "title", "key")
-    list_filter = ("template",)
-    search_fields = ("title", "key", "template__title")
-    ordering = ("template", "order", "id")
-
-
-
 # -------------------------
 # Procédures + sections + docs
 # -------------------------
@@ -104,8 +58,8 @@ class ProcedureTemplateSectionAdmin(admin.ModelAdmin):
 class ProcedureSectionInline(admin.TabularInline):
     model = ProcedureSection
     extra = 0
-    # pour ManyToMany visible_to_groups sur ProcedureSection
     filter_horizontal = ("visible_to_groups",)
+    fields = ("order", "title", "key", "body_html", "visible_to_groups")
 
 
 class ProcedureDocumentInline(admin.TabularInline):
@@ -121,18 +75,24 @@ class ProcedureAdmin(admin.ModelAdmin):
     inlines = [ProcedureSectionInline, ProcedureDocumentInline]
 
 
+# -------------------------
+# Cacher les modèles techniques du menu
+# (mais ils restent accessibles via les inlines)
+# -------------------------
+
+@admin.register(ProcedureTemplateSection)
+class ProcedureTemplateSectionHiddenAdmin(admin.ModelAdmin):
+    def has_module_permission(self, request):
+        return False
+
+
 @admin.register(ProcedureSection)
-class ProcedureSectionAdmin(admin.ModelAdmin):
-    list_display = ("procedure", "order", "title", "key")
-    list_filter = ("procedure__school",)
-    search_fields = ("title", "key", "procedure__title", "procedure__school__name")
-    ordering = ("procedure", "order", "id")
-    filter_horizontal = ("visible_to_groups",)
+class ProcedureSectionHiddenAdmin(admin.ModelAdmin):
+    def has_module_permission(self, request):
+        return False
 
 
 @admin.register(ProcedureDocument)
-class ProcedureDocumentAdmin(admin.ModelAdmin):
-    list_display = ("procedure", "doc_type", "title", "uploaded_at")
-    list_filter = ("doc_type", "procedure__school")
-    search_fields = ("title", "procedure__title", "procedure__school__name")
-    
+class ProcedureDocumentHiddenAdmin(admin.ModelAdmin):
+    def has_module_permission(self, request):
+        return False
