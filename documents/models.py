@@ -7,6 +7,10 @@ class School(models.Model):
     commune = models.CharField(max_length=255, blank=True)
     code = models.CharField(max_length=50, blank=True)
 
+    class Meta:
+        verbose_name = "Établissement"
+        verbose_name_plural = "Établissements"
+        
     groups = models.ManyToManyField(
         Group,
         blank=True,
@@ -22,6 +26,10 @@ class ProcedureTemplate(models.Model):
     title = models.CharField(max_length=200, default="Modèle procédure évacuation")
     is_active = models.BooleanField(default=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+     class Meta:
+        verbose_name = "Modèle de procédure"
+        verbose_name_plural = "Modèles de procédure"
 
     def __str__(self):
         return self.title
@@ -41,6 +49,11 @@ class ProcedureTemplateSection(models.Model):
         return f"{self.template}: {self.title}"
 
 class Procedure(models.Model):
+    
+    class Meta:
+        verbose_name = "Procédure"
+        verbose_name_plural = "Procédures"
+        
     DRAFT = "draft"
     VALIDATED = "validated"
     ARCHIVED = "archived"
@@ -71,6 +84,8 @@ class ProcedureSection(models.Model):
     body_html = models.TextField(blank=True)  # contenu riche (HTML)
 
     class Meta:
+        verbose_name = "Section (procédure)"
+        verbose_name_plural = "Sections (procédures)"
         ordering = ["order", "id"]
         unique_together = [("procedure", "key")]
 
