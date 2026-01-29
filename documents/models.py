@@ -11,15 +11,52 @@ class School(models.Model):
         verbose_name = "Établissement"
         verbose_name_plural = "Établissements"
         
-    groups = models.ManyToManyField(
+   ''' groups = models.ManyToManyField(
         Group,
         blank=True,
         related_name="schools",
         help_text="Groupes autorisés à accéder à cette école",
-    )
+    )'''
 
     def __str__(self):
         return self.name
+
+class SchoolRole(models.Model):
+    """
+    Assigne des utilisateurs à un rôle (Group) dans une école.
+    """
+    school = models.ForeignKey(School, on_delete=models.CASCADE, related_name="roles")
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="school_roles")
+    users = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name="school_roles")
+
+    class Meta:
+        unique_together = [("school", "group")]
+
+    def __str__(self):
+        return f"{self.school} — {self.group.name}"
+
+class ProcedureSection(models.Model):
+    procedure = models.ForeignKey("Procedure", on_delete=models.CASCADE, related_name="sections")
+    title = models.CharField(max_length=200)
+    key = models.SlugField(max_length=80)
+    order = models.PositiveIntegerField(default=0)
+    body_html = models.TextField(blank=True)
+
+    # visibilité par rôle (Group)
+    visible_to_groups = models.ManyToManyField(
+        Group,
+        blank=True,
+        related_name="procedure_sections",
+        help_text="Si vide: visible pour tous. Sinon: visible uniquement pour ces rôles.",
+    )
+
+    class Meta:
+        ordering = ["order", "id"]
+        unique_together = [("procedure", "key")]
+
+    def __str__(self):
+        return f"{self.procedure}: {self.title}"
+        
 
 class ProcedureTemplate(models.Model):
     """Modèle régional : structure + contenus par défaut."""
