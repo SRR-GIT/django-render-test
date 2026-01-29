@@ -37,9 +37,16 @@ class ProcedureTemplate(models.Model):
 class ProcedureTemplateSection(models.Model):
     template = models.ForeignKey(ProcedureTemplate, on_delete=models.CASCADE, related_name="sections")
     title = models.CharField(max_length=200)
-    key = models.SlugField(max_length=80)  # ex: roles, itineraire, pmr
+    key = models.SlugField(max_length=80)
     order = models.PositiveIntegerField(default=0)
-    body_html = models.TextField(blank=True)  # contenu riche (HTML)
+    body_html = models.TextField(blank=True)
+
+    visible_to_groups = models.ManyToManyField(
+        Group,
+        blank=True,
+        related_name="visible_template_sections",
+        help_text="Si vide: visible pour tous. Sinon: visible uniquement pour ces rôles.",
+    )
 
     class Meta:
         ordering = ["order", "id"]
@@ -81,7 +88,14 @@ class ProcedureSection(models.Model):
     title = models.CharField(max_length=200)
     key = models.SlugField(max_length=80)
     order = models.PositiveIntegerField(default=0)
-    body_html = models.TextField(blank=True)  # contenu riche (HTML)
+    body_html = models.TextField(blank=True)
+
+    visible_to_groups = models.ManyToManyField(
+        Group,
+        blank=True,
+        related_name="visible_procedure_sections",
+        help_text="Si vide: visible pour tous. Sinon: visible uniquement pour ces rôles.",
+    )
 
     class Meta:
         verbose_name = "Section (procédure)"
