@@ -1,57 +1,3 @@
-<!--<!doctype html>
-<html lang="fr">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ procedure.title }}</title>
-</head>
-<body>
-  <p>
-    <a href="{% url 'procedure_list' %}?school={{ procedure.school.id }}">
-      &larr; Retour aux procédures ({{ procedure.school.name }})
-    </a>
-  </p>
-
-  <h1>{{ procedure.title }}</h1>
-  <p>
-    Établissement : <strong>{{ procedure.school.name }}</strong><br>
-    Statut : {{ procedure.get_status_display }}<br>
-    Version : {{ procedure.version|default:"-" }}<br>
-    Dernière mise à jour : {{ procedure.updated_at }}
-  </p>
-
-  <hr>
-
-  <h2>Sections</h2>
-  {% for s in sections %}
-    <section style="margin-bottom: 24px;">
-      <h3>{{ s.title }}</h3>
-      <div>{{ s.body_html|safe }}</div>
-    </section>
-  {% empty %}
-    <p>Aucune section.</p>
-  {% endfor %}
-
-  <hr>
-
-  <h2>Documents (PDF, etc.)</h2>
-  {% for d in documents %}
-    <div>
-      <strong>{{ d.title }}</strong> ({{ d.get_doc_type_display }}) —
-      <a href="{{ d.file.url }}" target="_blank" rel="noopener">ouvrir</a>
-    </div>
-  {% empty %}
-    <p>Aucun document.</p>
-  {% endfor %}
-
-  <hr>
-  <p>
-    <a href="/admin/documents/procedure/{{ procedure.id }}/change/">
-      Modifier dans l’admin (Jazzmin)
-    </a>
-  </p>
-</body>
-</html>-->
 {% extends "base.html" %}
 {% block title %}{{ procedure.title }}{% endblock %}
 
@@ -150,5 +96,60 @@
   </div>
 </div>
 {% endblock %}
+
+<!--<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ procedure.title }}</title>
+</head>
+<body>
+  <p>
+    <a href="{% url 'procedure_list' %}?school={{ procedure.school.id }}">
+      &larr; Retour aux procédures ({{ procedure.school.name }})
+    </a>
+  </p>
+
+  <h1>{{ procedure.title }}</h1>
+  <p>
+    Établissement : <strong>{{ procedure.school.name }}</strong><br>
+    Statut : {{ procedure.get_status_display }}<br>
+    Version : {{ procedure.version|default:"-" }}<br>
+    Dernière mise à jour : {{ procedure.updated_at }}
+  </p>
+
+  <hr>
+
+  <h2>Sections</h2>
+  {% for s in sections %}
+    <section style="margin-bottom: 24px;">
+      <h3>{{ s.title }}</h3>
+      <div>{{ s.body_html|safe }}</div>
+    </section>
+  {% empty %}
+    <p>Aucune section.</p>
+  {% endfor %}
+
+  <hr>
+
+  <h2>Documents (PDF, etc.)</h2>
+  {% for d in documents %}
+    <div>
+      <strong>{{ d.title }}</strong> ({{ d.get_doc_type_display }}) —
+      <a href="{{ d.file.url }}" target="_blank" rel="noopener">ouvrir</a>
+    </div>
+  {% empty %}
+    <p>Aucun document.</p>
+  {% endfor %}
+
+  <hr>
+  <p>
+    <a href="/admin/documents/procedure/{{ procedure.id }}/change/">
+      Modifier dans l’admin (Jazzmin)
+    </a>
+  </p>
+</body>
+</html>-->
 
 
