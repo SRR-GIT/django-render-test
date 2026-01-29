@@ -27,7 +27,7 @@ class ProcedureTemplate(models.Model):
     is_active = models.BooleanField(default=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-     class Meta:
+    class Meta:
         verbose_name = "Modèle de procédure"
         verbose_name_plural = "Modèles de procédure"
 
