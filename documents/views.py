@@ -21,7 +21,12 @@ def _schools_for_user(user):
 
 @login_required
 def school_list(request):
-    schools = _schools_for_user(request.user)
+    schools = (
+        School.objects
+        .filter(roles__users=request.user)
+        .distinct()
+        .order_by("name")
+    )
     return render(request, "schools/list.html", {"schools": schools})
 
 
