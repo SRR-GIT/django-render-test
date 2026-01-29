@@ -30,7 +30,13 @@
 
       <div class="d-flex align-items-center gap-2 text-white-50">
         <span class="small">Connecté : <strong class="text-white">{{ request.user.username }}</strong></span>
-        <a class="btn btn-outline-light btn-sm" href="{% url 'logout' %}">Déconnexion</a>
+        <form method="post" action="{% url 'logout' %}" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-secondary btn-sm">
+            Se déconnecter
+          </button>
+        </form>
+
       </div>
     </div>
   </div>
