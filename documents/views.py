@@ -4,6 +4,9 @@ from django.shortcuts import render, get_object_or_404
 
 from .models import School, Procedure
 
+def user_groups_for_school(user, school):
+    return Group.objects.filter(school_roles__school=school, school_roles__users=user)
+
 
 def _schools_for_user(user):
     """
@@ -57,32 +60,26 @@ def procedure_list(request):
 
 @login_required
 def procedure_detail(request, pk):
-    """
-    Détail d'une procédure + sections + documents.
-    Sécurité: n'autorise que si la procédure appartient à une école accessible.
-    """
     schools = _schools_for_user(request.user)
-
     procedure = get_object_or_404(
         Procedure.objects.select_related("school").filter(school__in=schools),
         pk=pk,
     )
 
-    user_groups = request.user.groups.all()
+    user_groups = user_groups_for_school(request.user, procedure.school)
 
     sections = (
         procedure.sections
-        .filter(
-            Q(visible_to_groups__isnull=True) | Q(visible_to_groups__in=user_groups)
-        )
-        .distinct()
+        .all()
         .order_by("order", "id")
+        .filter(Q(visible_to_groups__isnull=True) | Q(visible_to_groups__in=user_groups))
+        .distinct()
     )
 
     documents = procedure.documents.all().order_by("-uploaded_at")
 
-    return render(
-        request,
-        "procedures/detail.html",
-        {"procedure": procedure, "sections": sections, "documents": documents},
-    )
+    return render(request, "procedures/detail.html", {
+        "procedure": procedure,
+        "sections": sections,
+        "documents": documents,
+    })
