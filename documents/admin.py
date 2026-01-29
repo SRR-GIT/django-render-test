@@ -6,6 +6,69 @@ from .models import (
     ProcedureDocument,
 )
 
+# --- INLINES ---
+class ProcedureTemplateSectionInline(admin.TabularInline):
+    model = ProcedureTemplateSection
+    extra = 0
+
+class ProcedureSectionInline(admin.TabularInline):
+    model = ProcedureSection
+    extra = 0
+
+class ProcedureDocumentInline(admin.TabularInline):
+    model = ProcedureDocument
+    extra = 0
+
+
+# --- MASQUER LES MODÈLES TECHNIQUES DU MENU ---
+@admin.register(ProcedureTemplateSection)
+class ProcedureTemplateSectionAdmin(admin.ModelAdmin):
+    def has_module_permission(self, request):
+        return False
+
+@admin.register(ProcedureSection)
+class ProcedureSectionAdmin(admin.ModelAdmin):
+    def has_module_permission(self, request):
+        return False
+
+@admin.register(ProcedureDocument)
+class ProcedureDocumentAdmin(admin.ModelAdmin):
+    def has_module_permission(self, request):
+        return False
+
+
+# --- ÉTABLISSEMENTS ---
+@admin.register(School)
+class SchoolAdmin(admin.ModelAdmin):
+    list_display = ("name", "commune", "code")
+    search_fields = ("name", "commune", "code")
+    filter_horizontal = ("groups",)
+
+
+# --- MODÈLES ---
+@admin.register(ProcedureTemplate)
+class ProcedureTemplateAdmin(admin.ModelAdmin):
+    list_display = ("title", "is_active", "updated_at")
+    inlines = [ProcedureTemplateSectionInline]
+
+
+# --- PROCÉDURES ---
+@admin.register(Procedure)
+class ProcedureAdmin(admin.ModelAdmin):
+    list_display = ("title", "school", "status", "updated_at")
+    list_filter = ("status", "school")
+    search_fields = ("title", "school__name")
+    inlines = [ProcedureSectionInline, ProcedureDocumentInline]
+
+
+'''from django.contrib import admin
+from .models import (
+    School,
+    ProcedureTemplate, ProcedureTemplateSection,
+    Procedure, ProcedureSection,
+    ProcedureDocument,
+)
+
 @admin.register(School)
 class SchoolAdmin(admin.ModelAdmin):
     list_display = ("name", "commune", "code")
@@ -38,4 +101,4 @@ class ProcedureAdmin(admin.ModelAdmin):
 
 admin.site.register(ProcedureTemplateSection)
 admin.site.register(ProcedureSection)
-admin.site.register(ProcedureDocument)
+admin.site.register(ProcedureDocument)'''
