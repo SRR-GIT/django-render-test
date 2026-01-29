@@ -1,32 +1,3 @@
-<!--<!doctype html>
-<html lang="fr">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Établissements</title>
-</head>
-<body>
-  <h1>Mes établissements</h1>
-
-  <p>
-    <a href="/admin/">Admin</a> |
-    <a href="{% url 'procedure_list' %}">Voir toutes mes procédures</a>
-  </p>
-
-  {% if schools %}
-    <ul>
-      {% for s in schools %}
-        <li>
-          <strong>{{ s.name }}</strong> — {{ s.commune }} ({{ s.code }})
-          — <a href="{% url 'procedure_list' %}?school={{ s.id }}">Procédures</a>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>Aucun établissement associé à ton compte.</p>
-  {% endif %}
-</body>
-</html>-->
 {% extends "base.html" %}
 {% block title %}Établissements{% endblock %}
 
@@ -87,4 +58,34 @@
   </div>
 {% endif %}
 {% endblock %}
+
+<!--<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Établissements</title>
+</head>
+<body>
+  <h1>Mes établissements</h1>
+
+  <p>
+    <a href="/admin/">Admin</a> |
+    <a href="{% url 'procedure_list' %}">Voir toutes mes procédures</a>
+  </p>
+
+  {% if schools %}
+    <ul>
+      {% for s in schools %}
+        <li>
+          <strong>{{ s.name }}</strong> — {{ s.commune }} ({{ s.code }})
+          — <a href="{% url 'procedure_list' %}?school={{ s.id }}">Procédures</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Aucun établissement associé à ton compte.</p>
+  {% endif %}
+</body>
+</html>-->
 
