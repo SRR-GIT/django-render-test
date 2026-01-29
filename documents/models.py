@@ -105,7 +105,7 @@ class ProcedureSection(models.Model):
         help_text="Si vide: visible pour tous. Sinon: visible uniquement pour ces rôles.",
     )
 
-      class Meta:
+    class Meta:
         verbose_name = "Section (procédure)"
         verbose_name_plural = "Sections (procédures)"
         ordering = ["order", "id"]
