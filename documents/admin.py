@@ -10,7 +10,6 @@ from .models import (
 class ProcedureTemplateSectionInline(admin.TabularInline):
     model = ProcedureTemplateSection
     extra = 0
-    filter_horizontal = ("visible_to_groups",)
 
 class ProcedureSectionInline(admin.TabularInline):
     model = ProcedureSection
