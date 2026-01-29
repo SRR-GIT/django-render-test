@@ -67,3 +67,4 @@ class ProcedureAdmin(admin.ModelAdmin):
     list_filter = ("status", "school")
     search_fields = ("title", "school__name")
     inlines = [ProcedureSectionInline, ProcedureDocumentInline]
+    
