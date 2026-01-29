@@ -11,12 +11,12 @@ class School(models.Model):
         verbose_name = "Établissement"
         verbose_name_plural = "Établissements"
         
-   ''' groups = models.ManyToManyField(
-        Group,
-        blank=True,
-        related_name="schools",
-        help_text="Groupes autorisés à accéder à cette école",
-    )'''
+   # groups = models.ManyToManyField(
+    #    Group,
+     #   blank=True,
+      #  related_name="schools",
+       # help_text="Groupes autorisés à accéder à cette école",
+   # )'''
 
     def __str__(self):
         return self.name
