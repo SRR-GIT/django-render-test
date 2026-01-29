@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
 
 from .models import School, Procedure
@@ -67,7 +68,17 @@ def procedure_detail(request, pk):
         pk=pk,
     )
 
-    sections = procedure.sections.all().order_by("order", "id")
+    user_groups = request.user.groups.all()
+
+    sections = (
+        procedure.sections
+        .filter(
+            Q(visible_to_groups__isnull=True) | Q(visible_to_groups__in=user_groups)
+        )
+        .distinct()
+        .order_by("order", "id")
+    )
+
     documents = procedure.documents.all().order_by("-uploaded_at")
 
     return render(
