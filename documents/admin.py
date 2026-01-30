@@ -43,6 +43,9 @@ class SchoolAdmin(admin.ModelAdmin):
 class ProcedureTemplateSectionInline(admin.TabularInline):
     model = ProcedureTemplateSection
     extra = 0
+    filter_horizontal = ("visible_to_groups",)
+    fields = ("order", "title", "key", "body_html", "visible_to_groups")
+
 
 
 @admin.register(ProcedureTemplate)
