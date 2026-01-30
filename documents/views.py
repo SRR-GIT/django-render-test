@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
 
-from .models import School, Procedure, ProcedureTemplate
+from .models import School, SchoolRole, Procedure, ProcedureTemplate
 
 def user_groups_for_school(user, school):
     return Group.objects.filter(school_roles__school=school, school_roles__users=user)
@@ -87,4 +87,45 @@ def template_detail(request, school_id, template_id):
         request,
         "templates/detail.html",
         {"school": school, "template": template, "sections": visible_sections},
+    )
+
+@login_required
+def procedure_detail(request, pk):
+    """
+    Détail d'une procédure + sections + documents.
+    Sécurité: n'autorise que si la procédure appartient à une école accessible.
+    Filtrage: sections visibles selon rôles (visible_to_groups)
+    """
+    schools = _schools_for_user(request.user)
+
+    procedure = get_object_or_404(
+        Procedure.objects.select_related("school").filter(school__in=schools),
+        pk=pk,
+    )
+
+    user_groups = _role_groups_for_user_in_school(request.user, procedure.school)
+
+    # sections/documents
+    sections_qs = (
+        procedure.sections
+        .prefetch_related("visible_to_groups")
+        .order_by("order", "id")
+    )
+    documents = procedure.documents.all().order_by("-uploaded_at")
+
+    # filtre visibilité (si visible_to_groups vide -> visible à tous)
+    visible_sections = []
+    for s in sections_qs:
+        allowed = s.visible_to_groups.all()
+        if not allowed.exists() or allowed.filter(id__in=user_groups).exists():
+            visible_sections.append(s)
+
+    return render(
+        request,
+        "procedures/detail.html",
+        {
+            "procedure": procedure,
+            "sections": visible_sections,
+            "documents": documents,
+        },
     )
