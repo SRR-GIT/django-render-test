@@ -55,6 +55,13 @@ class ProcedureTemplateSection(models.Model):
     order = models.PositiveIntegerField(default=0)
     body_html = models.TextField(blank=True)
 
+    visible_to_groups = models.ManyToManyField(
+        Group,
+        blank=True,
+        related_name="procedure_template_sections",
+        help_text="Si vide: visible pour tous. Sinon: visible uniquement pour ces rôles.",
+    )
+
     class Meta:
         ordering = ["order", "id"]
         unique_together = [("template", "key")]
