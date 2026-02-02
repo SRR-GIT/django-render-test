@@ -103,6 +103,7 @@ class ProcedureSection(models.Model):
     title = models.CharField(max_length=200)
     key = models.SlugField(max_length=80)
     order = models.PositiveIntegerField(default=0)
+    from ckeditor_uploader.fields import RichTextUploadingField
     body_html = models.TextField(blank=True)
 
     visible_to_groups = models.ManyToManyField(
