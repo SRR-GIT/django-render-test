@@ -7,6 +7,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("django.contrib.auth.urls")),
     path("", include("documents.urls")),
+    path("ckeditor/", include("ckeditor_uploader.urls")),
 ]
 
 # ⚠️ Servir les fichiers media UNIQUEMENT en test
