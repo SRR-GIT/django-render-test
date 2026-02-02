@@ -1,100 +1,62 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import Group
 from django.db.models import Q
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404, render
 
-from .models import School, SchoolRole, Procedure, ProcedureTemplate
-
-def user_groups_for_school(user, school):
-    return Group.objects.filter(school_roles__school=school, school_roles__users=user)
+from .models import School, SchoolRole, Procedure
 
 
 def _schools_for_user(user):
     """
-    Retourne les écoles accessibles à l'utilisateur:
-    - superuser: toutes
-    - sinon: écoles liées aux groupes de l'utilisateur
+    Écoles accessibles pour l'utilisateur via SchoolRole.users.
+    Superuser => toutes les écoles.
     """
     if user.is_superuser:
-        return School.objects.all().order_by("name")
-    return School.objects.filter(groups__user=user).distinct().order_by("name")
+        return School.objects.all()
+    return School.objects.filter(roles__users=user).distinct()
+
+
+def _role_groups_for_user_in_school(user, school):
+    """
+    Groups (= rôles) de l'utilisateur DANS une école donnée via SchoolRole.
+    """
+    if user.is_superuser:
+        return Group.objects.all()
+
+    return Group.objects.filter(
+        school_roles__school=school,
+        school_roles__users=user,
+    ).distinct()
 
 
 @login_required
 def school_list(request):
-    schools = (
-        School.objects
-        .filter(roles__users=request.user)
-        .distinct()
-        .order_by("name")
-    )
+    schools = _schools_for_user(request.user).order_by("name")
     return render(request, "schools/list.html", {"schools": schools})
 
 
 @login_required
 def procedure_list(request):
     """
-    Liste des procédures.
-    - Optionnel: filtrage par école via ?school=<id>
-    - Sécurité: on filtre uniquement sur les écoles accessibles
+    Liste des procédures visibles pour l'utilisateur.
     """
     schools = _schools_for_user(request.user)
-
-    school_id = request.GET.get("school")
-    if school_id:
-        school = get_object_or_404(schools, pk=school_id)
-        procedures = (
-            Procedure.objects.filter(school=school)
-            .select_related("school")
-            .order_by("-updated_at")
-        )
-        context = {"procedures": procedures, "school": school, "schools": schools}
-        return render(request, "procedures/list.html", context)
-
-    # Sinon: toutes les procédures des écoles accessibles
     procedures = (
-        Procedure.objects.filter(school__in=schools)
+        Procedure.objects
         .select_related("school")
+        .filter(school__in=schools)
         .order_by("-updated_at")
     )
-    return render(
-        request,
-        "procedures/list.html",
-        {"procedures": procedures, "schools": schools, "school": None},
-    )
+    return render(request, "procedures/list.html", {"procedures": procedures})
 
-
-@login_required
-def template_detail(request, school_id, template_id):
-    school = get_object_or_404(School, pk=school_id)
-    template = get_object_or_404(ProcedureTemplate, pk=template_id)
-
-    user_groups = _role_groups_for_user_in_school(request.user, school)
-
-    sections = (
-        template.sections
-        .prefetch_related("visible_to_groups")
-        .order_by("order", "id")
-    )
-
-    # Filtrage : si visible_to_groups vide => visible à tous
-    visible_sections = []
-    for s in sections:
-        allowed = s.visible_to_groups.all()
-        if not allowed.exists() or allowed.filter(id__in=user_groups).exists():
-            visible_sections.append(s)
-
-    return render(
-        request,
-        "templates/detail.html",
-        {"school": school, "template": template, "sections": visible_sections},
-    )
 
 @login_required
 def procedure_detail(request, pk):
     """
     Détail d'une procédure + sections + documents.
-    Sécurité: n'autorise que si la procédure appartient à une école accessible.
-    Filtrage: sections visibles selon rôles (visible_to_groups)
+    Sections:
+      - visible_to_groups vide => visible pour tous
+      - sinon => visible si l'utilisateur a un rôle autorisé dans l'école
     """
     schools = _schools_for_user(request.user)
 
@@ -103,29 +65,22 @@ def procedure_detail(request, pk):
         pk=pk,
     )
 
-    user_groups = _role_groups_for_user_in_school(request.user, procedure.school)
+    user_role_groups = _role_groups_for_user_in_school(request.user, procedure.school)
 
-    # sections/documents
-    sections_qs = (
+    sections = (
         procedure.sections
         .prefetch_related("visible_to_groups")
+        .filter(
+            Q(visible_to_groups__isnull=True) | Q(visible_to_groups__in=user_role_groups)
+        )
+        .distinct()
         .order_by("order", "id")
     )
-    documents = procedure.documents.all().order_by("-uploaded_at")
 
-    # filtre visibilité (si visible_to_groups vide -> visible à tous)
-    visible_sections = []
-    for s in sections_qs:
-        allowed = s.visible_to_groups.all()
-        if not allowed.exists() or allowed.filter(id__in=user_groups).exists():
-            visible_sections.append(s)
+    documents = procedure.documents.all().order_by("-uploaded_at")
 
     return render(
         request,
         "procedures/detail.html",
-        {
-            "procedure": procedure,
-            "sections": visible_sections,
-            "documents": documents,
-        },
+        {"procedure": procedure, "sections": sections, "documents": documents},
     )
