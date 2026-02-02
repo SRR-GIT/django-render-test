@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import Group
+from ckeditor.fields import RichTextField
 
 
 class School(models.Model):
@@ -53,7 +54,6 @@ class ProcedureTemplateSection(models.Model):
     title = models.CharField(max_length=200)
     key = models.SlugField(max_length=80)
     order = models.PositiveIntegerField(default=0)
-    from ckeditor_uploader.fields import RichTextUploadingField
     body_html = models.TextField(blank=True)
 
     visible_to_groups = models.ManyToManyField(
@@ -104,8 +104,10 @@ class ProcedureSection(models.Model):
     title = models.CharField(max_length=200)
     key = models.SlugField(max_length=80)
     order = models.PositiveIntegerField(default=0)
-    from ckeditor_uploader.fields import RichTextUploadingField
-    body_html = models.TextField(blank=True)
+    body_html = RichTextField(
+        blank=True,
+        help_text="Contenu de la section (texte riche, images, tableaux, etc.)"
+    )
 
     visible_to_groups = models.ManyToManyField(
         Group,
