@@ -4,7 +4,7 @@ import ckeditor_uploader.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("documents", "0002_..."),  # remplace par la dernière migration existante
+        ("documents", "documents/migrations/0003_merge_0002_schoolrole_and_visibility_0002_template_section_visibility.py"),  # remplace par la dernière migration existante
     ]
 
     operations = [
