@@ -49,38 +49,13 @@ def procedure_list(request):
     )
     return render(request, "procedures/list.html", {"procedures": procedures})
 
-
 @login_required
 def procedure_detail(request, pk):
-    """
-    Détail d'une procédure + sections + documents.
-    Sections:
-      - visible_to_groups vide => visible pour tous
-      - sinon => visible si l'utilisateur a un rôle autorisé dans l'école
-    """
     schools = _schools_for_user(request.user)
-
     procedure = get_object_or_404(
         Procedure.objects.select_related("school").filter(school__in=schools),
         pk=pk,
     )
-
-    user_role_groups = _role_groups_for_user_in_school(request.user, procedure.school)
-
-    sections = (
-        procedure.sections
-        .prefetch_related("visible_to_groups")
-        .filter(
-            Q(visible_to_groups__isnull=True) | Q(visible_to_groups__in=user_role_groups)
-        )
-        .distinct()
-        .order_by("order", "id")
-    )
-
+    sections = procedure.sections.all().order_by("order", "id")
     documents = procedure.documents.all().order_by("-uploaded_at")
-
-    return render(
-        request,
-        "procedures/detail.html",
-        {"procedure": procedure, "sections": sections, "documents": documents},
-    )
+    return render(request, "procedures/detail.html", {"procedure": procedure, "sections": sections, "documents": documents})
