@@ -57,6 +57,7 @@ STORAGES = {
 }
 
 
+
 WSGI_APPLICATION = "config.wsgi.application"
 
 import os
@@ -77,8 +78,10 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+import os
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 STORAGES = {
     "staticfiles": {
