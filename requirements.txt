@@ -4,3 +4,4 @@ whitenoise
 django-jazzmin
 dj-database-url
 psycopg[binary]
+django-ckeditor
