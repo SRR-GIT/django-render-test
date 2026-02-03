@@ -99,3 +99,67 @@ class ProcedureSectionHiddenAdmin(admin.ModelAdmin):
 class ProcedureDocumentHiddenAdmin(admin.ModelAdmin):
     def has_module_permission(self, request):
         return False
+
+# -------------------------
+# FORM POUR L'INLINE
+# -------------------------
+class ProcedureSectionInlineForm(forms.ModelForm):
+    class Meta:
+        model = ProcedureSection
+        fields = "__all__"
+
+    # Force un widget CKEditor plus grand (même en inline)
+    body_html = forms.CharField(
+        required=False,
+        widget=CKEditorWidget(attrs={"style": "width: 100%; min-height: 280px;"}),
+    )
+
+# -------------------------
+# INLINES
+# -------------------------
+class ProcedureSectionInline(admin.StackedInline):  # <- IMPORTANT : StackedInline
+    model = ProcedureSection
+    form = ProcedureSectionInlineForm
+    extra = 0
+    show_change_link = True
+
+    # Autocomplete (compact) au lieu de filter_horizontal (énorme)
+    autocomplete_fields = ("visible_to_groups",)
+
+    fieldsets = (
+        (None, {
+            "fields": ("order", "title", "key"),
+        }),
+        ("Contenu", {
+            "fields": ("body_html",),
+        }),
+        ("Visibilité", {
+            "fields": ("visible_to_groups",),
+            "description": "Si vide : visible pour tous. Sinon : visible uniquement pour ces rôles.",
+        }),
+    )
+
+
+class ProcedureDocumentInline(admin.TabularInline):
+    model = ProcedureDocument
+    extra = 0
+
+
+class ProcedureTemplateSectionInlineForm(forms.ModelForm):
+    class Meta:
+        model = ProcedureTemplateSection
+        fields = "__all__"
+
+    body_html = forms.CharField(
+        required=False,
+        widget=CKEditorWidget(attrs={"style": "width: 100%; min-height: 240px;"}),
+    )
+
+
+class ProcedureTemplateSectionInline(admin.StackedInline):
+    model = ProcedureTemplateSection
+    form = ProcedureTemplateSectionInlineForm
+    extra = 0
+    show_change_link = True
+    # si tu ajoutes visible_to_groups plus tard sur template section :
+    # autocomplete_fields = ("visible_to_groups",)
