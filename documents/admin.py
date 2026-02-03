@@ -1,104 +1,14 @@
 from django.contrib import admin
+from django import forms
+
+from ckeditor.fields import RichTextField
+from ckeditor.widgets import CKEditorWidget
+
 from .models import (
-    School,
-    SchoolRole,
-    ProcedureTemplate,
-    ProcedureTemplateSection,
-    Procedure,
-    ProcedureSection,
-    ProcedureDocument,
+    School, SchoolRole,
+    ProcedureTemplate, ProcedureTemplateSection,
+    Procedure, ProcedureSection, ProcedureDocument,
 )
-
-# -------------------------
-# Rôles par établissement
-# -------------------------
-
-class SchoolRoleInline(admin.TabularInline):
-    model = SchoolRole
-    extra = 0
-    autocomplete_fields = ("group", "users")
-    filter_horizontal = ("users",)
-
-
-@admin.register(SchoolRole)
-class SchoolRoleAdmin(admin.ModelAdmin):
-    list_display = ("school", "group")
-    list_filter = ("group", "school")
-    search_fields = ("school__name", "group__name", "users__username", "users__email")
-    filter_horizontal = ("users",)
-    autocomplete_fields = ("school", "group")
-
-
-@admin.register(School)
-class SchoolAdmin(admin.ModelAdmin):
-    list_display = ("name", "commune", "code")
-    search_fields = ("name", "commune", "code")
-    inlines = [SchoolRoleInline]
-
-
-# -------------------------
-# Modèles de procédure
-# -------------------------
-
-class ProcedureTemplateSectionInline(admin.TabularInline):
-    model = ProcedureTemplateSection
-    extra = 0
-    filter_horizontal = ("visible_to_groups",)
-    fields = ("order", "title", "key", "body_html", "visible_to_groups")
-
-
-
-@admin.register(ProcedureTemplate)
-class ProcedureTemplateAdmin(admin.ModelAdmin):
-    list_display = ("title", "is_active", "updated_at")
-    inlines = [ProcedureTemplateSectionInline]
-
-
-# -------------------------
-# Procédures + sections + docs
-# -------------------------
-
-class ProcedureSectionInline(admin.TabularInline):
-    model = ProcedureSection
-    extra = 0
-    filter_horizontal = ("visible_to_groups",)
-    fields = ("order", "title", "key", "body_html", "visible_to_groups")
-
-
-class ProcedureDocumentInline(admin.TabularInline):
-    model = ProcedureDocument
-    extra = 0
-
-
-@admin.register(Procedure)
-class ProcedureAdmin(admin.ModelAdmin):
-    list_display = ("title", "school", "status", "updated_at")
-    list_filter = ("status", "school")
-    search_fields = ("title", "school__name")
-    inlines = [ProcedureSectionInline, ProcedureDocumentInline]
-
-
-# -------------------------
-# Cacher les modèles techniques du menu
-# (mais ils restent accessibles via les inlines)
-# -------------------------
-
-@admin.register(ProcedureTemplateSection)
-class ProcedureTemplateSectionHiddenAdmin(admin.ModelAdmin):
-    def has_module_permission(self, request):
-        return False
-
-
-@admin.register(ProcedureSection)
-class ProcedureSectionHiddenAdmin(admin.ModelAdmin):
-    def has_module_permission(self, request):
-        return False
-
-
-@admin.register(ProcedureDocument)
-class ProcedureDocumentHiddenAdmin(admin.ModelAdmin):
-    def has_module_permission(self, request):
-        return False
 
 # -------------------------
 # FORM POUR L'INLINE
@@ -113,6 +23,7 @@ class ProcedureSectionInlineForm(forms.ModelForm):
         required=False,
         widget=CKEditorWidget(attrs={"style": "width: 100%; min-height: 280px;"}),
     )
+
 
 # -------------------------
 # INLINES
@@ -163,3 +74,67 @@ class ProcedureTemplateSectionInline(admin.StackedInline):
     show_change_link = True
     # si tu ajoutes visible_to_groups plus tard sur template section :
     # autocomplete_fields = ("visible_to_groups",)
+
+
+# -------------------------
+# MASQUER MODÈLES TECHNIQUES (optionnel)
+# -------------------------
+@admin.register(ProcedureSection)
+class ProcedureSectionAdmin(admin.ModelAdmin):
+    def has_module_permission(self, request):
+        return False
+
+@admin.register(ProcedureDocument)
+class ProcedureDocumentAdmin(admin.ModelAdmin):
+    def has_module_permission(self, request):
+        return False
+
+@admin.register(ProcedureTemplateSection)
+class ProcedureTemplateSectionAdmin(admin.ModelAdmin):
+    def has_module_permission(self, request):
+        return False
+
+
+# -------------------------
+# ÉTABLISSEMENTS & RÔLES
+# -------------------------
+class SchoolRoleInline(admin.TabularInline):
+    model = SchoolRole
+    extra = 0
+    autocomplete_fields = ("group", "users")
+
+
+@admin.register(School)
+class SchoolAdmin(admin.ModelAdmin):
+    list_display = ("name", "commune", "code")
+    search_fields = ("name", "commune", "code")
+    inlines = [SchoolRoleInline]
+
+
+@admin.register(SchoolRole)
+class SchoolRoleAdmin(admin.ModelAdmin):
+    list_display = ("school", "group")
+    list_filter = ("group", "school")
+    search_fields = ("school__name", "group__name", "users__username", "users__email")
+    autocomplete_fields = ("school", "group", "users")
+
+
+# -------------------------
+# PROCÉDURES
+# -------------------------
+@admin.register(Procedure)
+class ProcedureAdmin(admin.ModelAdmin):
+    list_display = ("title", "school", "status", "updated_at")
+    list_filter = ("status", "school")
+    search_fields = ("title", "school__name")
+    autocomplete_fields = ("school", "template", "updated_by")
+    inlines = [ProcedureSectionInline, ProcedureDocumentInline]
+
+
+# -------------------------
+# MODÈLES DE PROCÉDURE
+# -------------------------
+@admin.register(ProcedureTemplate)
+class ProcedureTemplateAdmin(admin.ModelAdmin):
+    list_display = ("title", "is_active", "updated_at")
+    inlines = [ProcedureTemplateSectionInline]
