@@ -137,7 +137,7 @@ class ProcedureAdmin(admin.ModelAdmin):
     autocomplete_fields = ("school", "template", "updated_by")
     inlines = [ProcedureSectionInline, ProcedureDocumentInline]
     class Media:
-    css = {"all": ("admin/custom.css",)}
+        css = {"all": ("admin/custom.css",)}
 
 
 # -------------------------
