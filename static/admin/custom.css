@@ -1,0 +1,7 @@
+/* CKEditor dans l'admin */
+.django-ckeditor-widget {
+  width: 100% !important;
+}
+.cke {
+  width: 100% !important;
+}
