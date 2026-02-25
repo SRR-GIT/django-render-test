@@ -150,3 +150,44 @@ class ProcedureTemplateAdmin(admin.ModelAdmin):
     search_fields = ("title",)  # ✅ requis pour autocomplete_fields
     inlines = [ProcedureTemplateSectionInline]
 
+
+
+class ProcedureSectionVersionInline(admin.TabularInline):
+    model = ProcedureSectionVersion
+    extra = 0
+    fields = ("order", "title", "key")
+    readonly_fields = ("order", "title", "key")
+    can_delete = False
+    show_change_link = True
+
+@admin.register(ProcedureVersion)
+class ProcedureVersionAdmin(admin.ModelAdmin):
+    list_display = ("procedure", "number", "created_at", "created_by", "comment")
+    list_filter = ("procedure__school",)
+    search_fields = ("procedure__title", "procedure__school__name", "comment")
+    inlines = [ProcedureSectionVersionInline]
+    readonly_fields = ("procedure", "number", "created_at", "created_by")
+
+class ProcedureVersionInline(admin.TabularInline):
+    model = ProcedureVersion
+    extra = 0
+    fields = ("number", "created_at", "created_by", "comment")
+    readonly_fields = ("number", "created_at", "created_by")
+    can_delete = False
+    show_change_link = True
+    ordering = ("-number",)
+
+@admin.register(Procedure)
+class ProcedureAdmin(admin.ModelAdmin):
+    list_display = ("title", "school", "status", "updated_at")
+    list_filter = ("status", "school")
+    search_fields = ("title", "school__name")
+    inlines = [ProcedureVersionInline]  # 👈 affiche les versions dans la procédure
+
+    actions = ["make_snapshot_version"]
+
+    @admin.action(description="Créer une version (snapshot) pour les procédures sélectionnées")
+    def make_snapshot_version(self, request, queryset):
+        for proc in queryset:
+            v = create_procedure_version(proc, user=request.user, comment="Snapshot admin")
+            messages.success(request, f"Version v{v.number} créée pour {proc}")
