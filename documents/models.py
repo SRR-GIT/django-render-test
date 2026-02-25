@@ -146,3 +146,30 @@ class ProcedureDocument(models.Model):
 
     def __str__(self):
         return self.title
+
+class ProcedureVersion(models.Model):
+    procedure = models.ForeignKey("Procedure", on_delete=models.CASCADE, related_name="versions")
+    number = models.PositiveIntegerField()  # 1,2,3...
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    comment = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        unique_together = [("procedure", "number")]
+        ordering = ["-number"]
+
+    def __str__(self):
+        return f"{self.procedure} v{self.number}"
+
+
+class ProcedureSectionVersion(models.Model):
+    version = models.ForeignKey(ProcedureVersion, on_delete=models.CASCADE, related_name="sections")
+    title = models.CharField(max_length=200)
+    key = models.SlugField(max_length=80)
+    order = models.PositiveIntegerField(default=0)
+    body_html = models.TextField(blank=True)  # ou RichTextField si tu l’as déjà
+    # on “fige” les groupes en snapshot aussi
+    visible_to_groups = models.ManyToManyField("auth.Group", blank=True, related_name="procedure_section_versions")
+
+    class Meta:
+        ordering = ["order", "id"]
