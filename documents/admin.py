@@ -155,7 +155,7 @@ class ProcedureTemplateAdmin(admin.ModelAdmin):
 
 
 class ProcedureSectionVersionInline(admin.TabularInline):
-    model = ProcedureSectionVersion
+    model = models.ProcedureSectionVersion
     extra = 0
     fields = ("order", "title", "key")
     readonly_fields = ("order", "title", "key")
