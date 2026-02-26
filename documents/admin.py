@@ -16,6 +16,7 @@ from .models import (
     School, SchoolRole,
     ProcedureTemplate, ProcedureTemplateSection,
     Procedure, ProcedureSection, ProcedureDocument,
+    ProcedureSectionVersion,
 )
 
 # -------------------------
