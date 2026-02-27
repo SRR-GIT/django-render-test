@@ -40,8 +40,8 @@ class SchoolRole(models.Model):
 
 class ProcedureTemplate(models.Model):
     title = models.CharField(max_length=200, default="Modèle procédure évacuation", verbose_name="Titre")
-    is_active = models.BooleanField(default=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True, verbose_name = "Actif")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name = "Dernière mise à jour")
 
     class Meta:
         verbose_name = "Modèle de procédure"
@@ -53,16 +53,17 @@ class ProcedureTemplate(models.Model):
 
 class ProcedureTemplateSection(models.Model):
     template = models.ForeignKey(ProcedureTemplate, on_delete=models.CASCADE, related_name="sections")
-    title = models.CharField(max_length=200)
-    key = models.SlugField(max_length=80)
-    order = models.PositiveIntegerField(default=0)
-    body_html = models.TextField(blank=True)
+    title = models.CharField(max_length=200, verbose_name ="Titre")
+    key = models.SlugField(max_length=80, verbose_name ="Clé")
+    order = models.PositiveIntegerField(default=0, verbose_name ="Ordre")
+    body_html = models.TextField(blank=True, verbose_name ="Contenu html")
 
     visible_to_groups = models.ManyToManyField(
         Group,
         blank=True,
         related_name="procedure_template_sections",
         help_text="Si vide: visible pour tous. Sinon: visible uniquement pour ces rôles.",
+        verbose_name = "Visble par les groupes suivants",
     )
 
     class Meta:
