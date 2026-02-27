@@ -31,6 +31,8 @@ class SchoolRole(models.Model):
 
     class Meta:
         unique_together = [("school", "group")]
+        verbose_name = "Rôle"
+        verbose_name_plural = "Rôles"
 
     def __str__(self):
         return f"{self.school} — {self.group.name}"
@@ -157,6 +159,8 @@ class ProcedureVersion(models.Model):
     class Meta:
         unique_together = [("procedure", "number")]
         ordering = ["-number"]
+        verbose_name = "Version des procédures"
+        verbose_name_plural = "Versions des procédures"
 
     def __str__(self):
         return f"{self.procedure} v{self.number}"
