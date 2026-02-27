@@ -138,11 +138,13 @@ class SchoolRoleAdmin(admin.ModelAdmin):
 @admin.register(ProcedureTemplate)
 class ProcedureTemplateAdmin(admin.ModelAdmin):
     list_display = ("title", "is_active", "updated_at")
+    
     formfield_overrides = {
         forms.CharField: {
             "widget": forms.TextInput(attrs={"style": "width: 600px;"})
         },
     }
+    
     search_fields = ("title",)  # ✅ requis pour autocomplete_fields
     inlines = [ProcedureTemplateSectionInline]
 
