@@ -86,15 +86,15 @@ class Procedure(models.Model):
         (ARCHIVED, "Archivée"),
     ]
 
-    school = models.ForeignKey(School, on_delete=models.CASCADE, related_name="procedures")
-    title = models.CharField(max_length=200)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=DRAFT)
+    school = models.ForeignKey(School, on_delete=models.CASCADE, related_name="procedures", verbose_name="Etablissement")
+    title = models.CharField(max_length=200, verbose_name="Titre")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=DRAFT, verbose_name="Statut")
     version = models.CharField(max_length=30, blank=True)
-    template = models.ForeignKey(ProcedureTemplate, on_delete=models.PROTECT, null=True, blank=True)
+    template = models.ForeignKey(ProcedureTemplate, on_delete=models.PROTECT, null=True, blank=True, verbose_name="Modèle")
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Créé le")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Mis à jour le")
+    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, verbose_name="Mis à jor par")
 
     class Meta:
         verbose_name = "Procédure"
