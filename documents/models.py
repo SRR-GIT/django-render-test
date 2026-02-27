@@ -39,7 +39,7 @@ class SchoolRole(models.Model):
 
 
 class ProcedureTemplate(models.Model):
-    title = models.CharField(max_length=200, default="Modèle procédure évacuation")
+    title = models.CharField(max_length=200, default="Modèle procédure évacuation", verbose_name="Titre")
     is_active = models.BooleanField(default=True)
     updated_at = models.DateTimeField(auto_now=True)
 
