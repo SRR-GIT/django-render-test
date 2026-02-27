@@ -18,6 +18,7 @@ from .models import (
     ProcedureTemplate, ProcedureTemplateSection,
     Procedure, ProcedureSection, ProcedureDocument,
     ProcedureSectionVersion,
+    ProcedureVersion, 
 )
 
 # -------------------------
