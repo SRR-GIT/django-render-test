@@ -5,3 +5,10 @@
 .cke {
   width: 100% !important;
 }
+/* Tous les input texte (CharField, EmailField, etc.) */
+input[type="text"],
+input[type="email"],
+input[type="url"] {
+    width: 100% !important;
+    max-width: 800px;
+}
