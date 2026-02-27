@@ -130,19 +130,6 @@ class SchoolRoleAdmin(admin.ModelAdmin):
     autocomplete_fields = ("school", "group", "users")
 
 
-# -------------------------
-# PROCÉDURES
-# -------------------------
-@admin.register(Procedure)
-class ProcedureAdmin(admin.ModelAdmin):
-    list_display = ("title", "school", "status", "updated_at")
-    list_filter = ("status", "school")
-    search_fields = ("title", "school__name")
-    autocomplete_fields = ("school", "template", "updated_by")
-    inlines = [ProcedureSectionInline, ProcedureDocumentInline]
-    class Media:
-        css = {"all": ("admin/custom.css",)}
-
 
 # -------------------------
 # MODÈLES DE PROCÉDURE
@@ -180,12 +167,18 @@ class ProcedureVersionInline(admin.TabularInline):
     show_change_link = True
     ordering = ("-number",)
 
+# -------------------------
+# PROCÉDURES
+# -------------------------
 @admin.register(Procedure)
 class ProcedureAdmin(admin.ModelAdmin):
     list_display = ("title", "school", "status", "updated_at")
     list_filter = ("status", "school")
     search_fields = ("title", "school__name")
+    autocomplete_fields = ("school", "template", "updated_by")
     inlines = [ProcedureVersionInline]  # 👈 affiche les versions dans la procédure
+    class Media:
+        css = {"all": ("admin/custom.css",)}
 
     actions = ["make_snapshot_version"]
 
