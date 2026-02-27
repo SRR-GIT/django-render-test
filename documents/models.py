@@ -68,6 +68,8 @@ class ProcedureTemplateSection(models.Model):
     class Meta:
         ordering = ["order", "id"]
         unique_together = [("template", "key")]
+        verbose_name = "Section des modèles de procédures"
+        verbose_name_plural = "Sections des modèles de procédures" 
 
     def __str__(self):
         return f"{self.template}: {self.title}"
