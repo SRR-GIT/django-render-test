@@ -49,8 +49,10 @@
                     {{ s.title }}
                   </button>
                 </h2>
+                <!--<div id="c{{ s.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
+                     data-bs-parent="#sectionsAcc">-->
                 <div id="c{{ s.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
-                     data-bs-parent="#sectionsAcc">
+                     >
                   <div class="accordion-body">
                     {% if s.body_html %}
                       {{ s.body_html|safe }}
