@@ -111,6 +111,7 @@ class ProcedureTemplateSectionAdmin(admin.ModelAdmin):
 # -------------------------
 class SchoolRoleInline(admin.TabularInline):
     model = SchoolRole
+    description = "Rôles"
     extra = 0
     autocomplete_fields = ("group", "users")
 
