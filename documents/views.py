@@ -102,3 +102,9 @@ def procedure_create(request, school_id):
         form = ProcedureCreateForm()
 
     return render(request, "procedures/create.html", {"school": school, "form": form})
+
+from django.shortcuts import get_object_or_404, redirect
+from django.http import HttpResponseForbidden
+from django.contrib.auth.decorators import login_required
+from .forms import ProcedureSectionEditForm
+from .models import ProcedureSection
