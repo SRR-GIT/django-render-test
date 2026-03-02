@@ -10,6 +10,16 @@
   <a class="btn btn-outline-secondary" href="{% url 'school_list' %}">Retour aux établissements</a>
 </div>
 
+{% for school in schools %}
+  <div class="card">
+    <h3>{{ school.name }}</h3>
+
+    <a class="btn btn-primary" href="{% url 'procedure_create' school.id %}">
+      ➕ Créer une procédure
+    </a>
+  </div>
+{% endfor %}
+
 {% if procedures %}
   <div class="row g-3">
     {% for p in procedures %}
