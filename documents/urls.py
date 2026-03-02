@@ -7,4 +7,5 @@ urlpatterns = [
     path("procedures/<int:pk>/", views.procedure_detail, name="procedure_detail"),
     path("schools/<int:school_id>/procedures/new/", views.procedure_create, name="procedure_create"),
     path("sections/<int:section_id>/edit/", views.procedure_section_edit, name="procedure_section_edit"),
+    path("schools/<int:school_id>/procedures/new/", views.procedure_create, name="procedure_create"),
 ]
