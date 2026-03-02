@@ -83,6 +83,14 @@ class ProcedureTemplateSectionInline(admin.StackedInline):
     form = ProcedureTemplateSectionInlineForm
     extra = 0
     show_change_link = True
+    autocomplete_fields = ("visible_to_groups", "editable_by_groups")
+
+    fieldsets = (
+        (None, {"fields": ("order", "title", "key")}),
+        ("Contenu", {"fields": ("body_html",)}),
+        ("Visibilité", {"fields": ("visible_to_groups",)}),
+        ("Édition", {"fields": ("editable_by_groups",)}),
+    )
     # si tu ajoutes visible_to_groups plus tard sur template section :
     # autocomplete_fields = ("visible_to_groups",)
 
