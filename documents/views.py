@@ -108,3 +108,42 @@ from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from .forms import ProcedureSectionEditForm
 from .models import ProcedureSection
+
+@login_required
+def procedure_section_edit(request, section_id):
+    section = get_object_or_404(
+        ProcedureSection.objects
+        .select_related("procedure__school")
+        .prefetch_related("editable_by_groups"),
+        pk=section_id,
+    )
+
+    school = section.procedure.school
+
+    role_groups = _role_groups_for_user_in_school(request.user, school)
+
+    allowed = (
+        section.editable_by_groups.count() == 0
+        or section.editable_by_groups.filter(
+            id__in=role_groups.values_list("id", flat=True)
+        ).exists()
+    )
+
+    if not allowed and not request.user.is_superuser:
+        return HttpResponseForbidden("Vous n'êtes pas autorisé à modifier cette section.")
+
+    if request.method == "POST":
+        form = ProcedureSectionEditForm(request.POST, instance=section)
+        if form.is_valid():
+            s = form.save(commit=False)
+            s.procedure.updated_by = request.user
+            s.procedure.save(update_fields=["updated_by", "updated_at"])
+            s.save()
+            return redirect("procedure_detail", pk=section.procedure_id)
+    else:
+        form = ProcedureSectionEditForm(instance=section)
+
+    return render(request, "procedures/section_edit.html", {
+        "section": section,
+        "form": form,
+    })
