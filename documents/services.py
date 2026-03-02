@@ -24,7 +24,8 @@ def create_procedure_version(procedure, user=None, comment=""):
         sv.visible_to_groups.set(s.visible_to_groups.all())
 
     return v
-    
+
+@transaction.atomic
 def create_procedure_from_template(*, school, template, title, user):
     proc = Procedure.objects.create(
         school=school,
