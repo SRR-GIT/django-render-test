@@ -1,0 +1,9 @@
+<h1>Créer une procédure pour {{ school.name }}</h1>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Créer</button>
+</form>
+
+<p><a href="{% url 'school_list' %}">← Retour</a></p>
