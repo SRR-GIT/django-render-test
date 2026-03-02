@@ -117,8 +117,14 @@ class ProcedureSection(models.Model):
     visible_to_groups = models.ManyToManyField(
         Group,
         blank=True,
-        related_name="procedure_sections",
+        related_name="procedure_sections_visible",
         help_text="Si vide: visible pour tous. Sinon: visible uniquement pour ces rôles.",
+    )
+    editable_by_groups = models.ManyToManyField(
+        Group,
+        blank=True,
+        related_name="procedure_sections_editable",
+        help_text="Si vide: modifiable par tous les rôles. Sinon: modifiable uniquement par ces rôles.",
     )
 
     class Meta:
