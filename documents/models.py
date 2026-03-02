@@ -53,28 +53,40 @@ class ProcedureTemplate(models.Model):
 
 class ProcedureTemplateSection(models.Model):
     template = models.ForeignKey(ProcedureTemplate, on_delete=models.CASCADE, related_name="sections")
-    title = models.CharField(max_length=200, verbose_name ="Titre")
-    key = models.SlugField(max_length=80, verbose_name ="Clé")
-    order = models.PositiveIntegerField(default=0, verbose_name ="Ordre")
-    body_html = models.TextField(blank=True, verbose_name ="Contenu html")
+    title = models.CharField(max_length=200, verbose_name="Titre")
+    key = models.SlugField(max_length=80, verbose_name="Clé")
+    order = models.PositiveIntegerField(default=0, verbose_name="Ordre")
+
+    body_html = RichTextField(
+        blank=True,
+        help_text="Contenu de la section du modèle (texte riche, images, tableaux, etc.)",
+        verbose_name="Contenu",
+    )
 
     visible_to_groups = models.ManyToManyField(
         Group,
         blank=True,
-        related_name="procedure_template_sections",
+        related_name="procedure_template_sections_visible",
         help_text="Si vide: visible pour tous. Sinon: visible uniquement pour ces rôles.",
-        verbose_name = "Visble par les groupes suivants",
+        verbose_name="Visible par",
+    )
+
+    editable_by_groups = models.ManyToManyField(
+        Group,
+        blank=True,
+        related_name="procedure_template_sections_editable",
+        help_text="Si vide: modifiable par tous les rôles. Sinon: modifiable uniquement par ces rôles.",
+        verbose_name="Modifiable par",
     )
 
     class Meta:
         ordering = ["order", "id"]
         unique_together = [("template", "key")]
-        verbose_name = "Section des modèles de procédures"
-        verbose_name_plural = "Sections des modèles de procédures" 
+        verbose_name = "Section de modèle"
+        verbose_name_plural = "Sections de modèles"
 
     def __str__(self):
         return f"{self.template}: {self.title}"
-
 
 class Procedure(models.Model):
     DRAFT = "draft"
@@ -186,18 +198,3 @@ class ProcedureSectionVersion(models.Model):
 
     class Meta:
         ordering = ["order", "id"]
-
-class ProcedureTemplateSection(models.Model):
-    # ... tes champs existants ...
-    visible_to_groups = models.ManyToManyField(
-        Group,
-        blank=True,
-        related_name="procedure_template_sections_visible",
-        help_text="Si vide: visible pour tous. Sinon: visible uniquement pour ces rôles.",
-    )
-    editable_by_groups = models.ManyToManyField(
-        Group,
-        blank=True,
-        related_name="procedure_template_sections_editable",
-        help_text="Si vide: modifiable par tous les rôles. Sinon: modifiable uniquement par ces rôles.",
-    )
