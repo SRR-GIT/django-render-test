@@ -2,6 +2,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
+from django.shortcuts import render, redirect
+from django.http import HttpResponseForbidden
+from .forms import ProcedureCreateForm
+from .services import create_procedure_from_template
+from .models import School
 
 from .models import School, SchoolRole, Procedure
 
@@ -70,3 +75,30 @@ def procedure_detail(request, pk):
 
     documents = procedure.documents.all().order_by("-uploaded_at")
     return render(request, "procedures/detail.html", {"procedure": procedure, "sections": sections, "documents": documents})
+
+def _is_director_in_school(user, school) -> bool:
+    if user.is_superuser:
+        return True
+    return school.roles.filter(group__name="Direction", users=user).exists()
+
+@login_required
+def procedure_create(request, school_id):
+    school = School.objects.get(pk=school_id)
+
+    if not _is_director_in_school(request.user, school):
+        return HttpResponseForbidden("Accès réservé au rôle Direction pour cet établissement.")
+
+    if request.method == "POST":
+        form = ProcedureCreateForm(request.POST)
+        if form.is_valid():
+            proc = create_procedure_from_template(
+                school=school,
+                template=form.cleaned_data["template"],
+                title=form.cleaned_data["title"],
+                user=request.user,
+            )
+            return redirect("procedure_detail", pk=proc.pk)
+    else:
+        form = ProcedureCreateForm()
+
+    return render(request, "procedures/create.html", {"school": school, "form": form})
