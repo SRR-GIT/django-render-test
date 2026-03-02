@@ -5,6 +5,6 @@ urlpatterns = [
     path("", views.school_list, name="school_list"),
     path("procedures/", views.procedure_list, name="procedure_list"),
     path("procedures/<int:pk>/", views.procedure_detail, name="procedure_detail"),
-    ath("schools/<int:school_id>/procedures/new/", views.procedure_create, name="procedure_create"),
+    path("schools/<int:school_id>/procedures/new/", views.procedure_create, name="procedure_create"),
     path("sections/<int:section_id>/edit/", views.procedure_section_edit, name="procedure_section_edit"),
 ]
