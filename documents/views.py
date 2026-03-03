@@ -187,11 +187,19 @@ def _is_director_in_school(user, school) -> bool:
 
 
 class ProcedureCreateForm(forms.Form):
-    title = forms.CharField(label="Titre", max_length=200)
+    title = forms.CharField(
+        label="Titre",
+        max_length=200,
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "readonly": "readonly",
+        }),
+    )
+
     template = forms.ModelChoiceField(
         label="Modèle",
         queryset=ProcedureTemplate.objects.filter(is_active=True).order_by("title"),
-        required=True,
+        widget=forms.Select(attrs={"class": "form-select"}),
     )
 
 
