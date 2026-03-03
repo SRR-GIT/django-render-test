@@ -12,6 +12,16 @@
   </a>
 </div>
 
+{% for school in schools %}
+  <div class="card">
+    <h3>{{ school.name }}</h3>
+
+    <a class="btn btn-primary" href="{% url 'procedure_create' school.id %}">
+      ➕ Créer une procédure
+    </a>
+  </div>
+{% endfor %}
+
 {% if schools %}
   <div class="row g-3">
     {% for s in schools %}
