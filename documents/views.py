@@ -83,25 +83,47 @@ def _is_director_in_school(user, school) -> bool:
 
 @login_required
 def procedure_create(request, school_id):
-    school = School.objects.get(pk=school_id)
+    school = get_object_or_404(School, pk=school_id)
 
     if not _is_director_in_school(request.user, school):
-        return HttpResponseForbidden("Accès réservé au rôle Direction pour cet établissement.")
+        return HttpResponseForbidden("Seuls les directeurs peuvent créer une procédure.")
 
     if request.method == "POST":
         form = ProcedureCreateForm(request.POST)
         if form.is_valid():
-            proc = create_procedure_from_template(
+            template = form.cleaned_data["template"]
+
+            proc = Procedure.objects.create(
                 school=school,
-                template=form.cleaned_data["template"],
-                title=form.cleaned_data["title"],
-                user=request.user,
+                title=template.title,  # ✅ on force le titre = modèle
+                template=template,
+                status=Procedure.DRAFT,
+                updated_by=request.user,
             )
+
+            template_sections = template.sections.prefetch_related(
+                "visible_to_groups", "editable_by_groups"
+            )
+
+            for ts in template_sections:
+                ps = ProcedureSection.objects.create(
+                    procedure=proc,
+                    title=ts.title,
+                    key=ts.key,
+                    order=ts.order,
+                    body_html=ts.body_html,
+                )
+                ps.visible_to_groups.set(ts.visible_to_groups.all())
+                ps.editable_by_groups.set(ts.editable_by_groups.all())
+
             return redirect("procedure_detail", pk=proc.pk)
     else:
         form = ProcedureCreateForm()
 
-    return render(request, "procedures/create.html", {"school": school, "form": form})
+    return render(request, "procedures/create.html", {
+        "school": school,
+        "form": form,
+    })
 
 from django.shortcuts import get_object_or_404, redirect
 from django.http import HttpResponseForbidden
