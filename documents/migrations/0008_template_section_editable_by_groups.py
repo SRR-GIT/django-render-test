@@ -5,7 +5,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("auth", "0012_alter_user_first_name_max_length"),
-        ("documents", "XXXX_last_migration_here"),
+        ("documents", "0007_procedure_versioning.py"),
     ]
 
     operations = [
