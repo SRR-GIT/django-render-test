@@ -203,3 +203,23 @@ class ProcedureAdmin(admin.ModelAdmin):
         for proc in queryset:
             v = create_procedure_version(proc, user=request.user, comment="Snapshot admin")
             messages.success(request, f"Version v{v.number} créée pour {proc}")
+
+
+class GroupAdminForm(forms.ModelForm):
+    class Meta:
+        model = Group
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if "permissions" in self.fields:
+            w = self.fields["permissions"].widget
+            # Django utilise FilteredSelectMultiple: on peut réduire sa hauteur
+            w.attrs["style"] = "min-height: 260px; width: 100%;"
+
+admin.site.unregister(Group)
+
+@admin.register(Group)
+class GroupAdminWithBetterPermissions(GroupAdmin):
+    form = GroupAdminForm
+    search_fields = ("name",)
