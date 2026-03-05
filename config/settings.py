@@ -98,7 +98,7 @@ JAZZMIN_SETTINGS = {
     "topmenu_links": [
         {"name": "Site", "url": "/", "new_window": True},
     ],
-    "show_ui_builder": True,   # optionnel (permet de tester visuellement)
+    "show_ui_builder": False,   # optionnel (permet de tester visuellement)
     "use_google_fonts_cdn": True,
 }
 
