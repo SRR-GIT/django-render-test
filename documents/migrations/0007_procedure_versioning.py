@@ -6,7 +6,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("documents", "0006_schoolrole_and_section_visibility"),  # ⚠️ adapte au dernier fichier chez toi
+        ("documents", "0005_merge_0003_0004"),  # ⚠️ adapte au dernier fichier chez toi
         ("auth", "0012_alter_user_first_name_max_length"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
