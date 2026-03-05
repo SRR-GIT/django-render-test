@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("documents", "0001_initial"),
+        ("documents", "0002_schoolrole_and_visibility"),
         ("auth", "0012_alter_user_first_name_max_length"),
     ]
 
