@@ -12,3 +12,64 @@ input[type="url"] {
     width: 100% !important;
     max-width: 800px;
 }
+
+/* =========================
+   ADMIN - Form layout tweaks
+   ========================= */
+
+/* 1) Amincir la colonne des labels à gauche */
+.form-horizontal .form-group > label,
+.form-horizontal .form-group .col-form-label {
+  flex: 0 0 140px !important;  /* largeur fixe */
+  max-width: 140px !important;
+  white-space: nowrap;
+}
+
+.form-horizontal .form-group > .col,
+.form-horizontal .form-group > div[class*="col-"] {
+  flex: 1 1 auto !important;
+  max-width: calc(100% - 140px) !important;
+}
+
+/* 2) Le widget Permissions (selector) : prendre toute la largeur utile */
+.selector {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.selector .selector-available,
+.selector .selector-chosen {
+  width: 46% !important;       /* deux colonnes propres */
+  max-width: 46% !important;
+}
+
+.selector .selector-available select,
+.selector .selector-chosen select {
+  width: 100% !important;
+  min-height: 420px;           /* plus lisible */
+}
+
+.selector .selector-filter {
+  width: 100% !important;
+}
+
+/* 3) Boutons Enregistrer : pas full-width, plus compact */
+.submit-row,
+.card-footer .submit-row {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+}
+
+.submit-row input,
+.submit-row .btn {
+  width: auto !important;
+  min-width: 140px;
+  padding: .35rem .75rem !important;
+  font-size: .9rem !important;
+}
+
+/* Si Jazzmin force un gros bouton vert */
+.btn-success, .btn-primary {
+  width: auto !important;
+}
