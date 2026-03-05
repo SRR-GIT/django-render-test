@@ -98,6 +98,8 @@ JAZZMIN_SETTINGS = {
     "topmenu_links": [
         {"name": "Site", "url": "/", "new_window": True},
     ],
+    "show_ui_builder": True,   # optionnel (permet de tester visuellement)
+    "use_google_fonts_cdn": True,
 }
 
 CSRF_TRUSTED_ORIGINS = [o for o in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if o]
