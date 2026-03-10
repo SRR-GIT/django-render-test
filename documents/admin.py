@@ -94,6 +94,11 @@ class ProcedureTemplateSectionInline(admin.StackedInline):
     # si tu ajoutes visible_to_groups plus tard sur template section :
     # autocomplete_fields = ("visible_to_groups",)
 
+@admin.register(models.ProcedureTemplate)
+class ProcedureTemplateAdmin(admin.ModelAdmin):
+    list_display = ("title", "is_active", "updated_at")
+    search_fields = ("title",)
+    inlines = [ProcedureTemplateSectionInline]
 
 # -------------------------
 # MASQUER MODÈLES TECHNIQUES (optionnel)
