@@ -132,6 +132,15 @@ from .forms import ProcedureSectionEditForm
 from .models import ProcedureSection
 
 @login_required
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
+from django.shortcuts import get_object_or_404, redirect, render
+
+from .forms import ProcedureSectionEditForm
+from .models import ProcedureSection
+
+
+@login_required
 def procedure_section_edit(request, section_id):
     section = get_object_or_404(
         ProcedureSection.objects
@@ -141,34 +150,41 @@ def procedure_section_edit(request, section_id):
     )
 
     school = section.procedure.school
-
     role_groups = _role_groups_for_user_in_school(request.user, school)
 
+    role_group_ids = role_groups.values_list("id", flat=True)
+
     allowed = (
-        section.editable_by_groups.count() == 0
-        or section.editable_by_groups.filter(
-            id__in=role_groups.values_list("id", flat=True)
-        ).exists()
+        request.user.is_superuser
+        or not section.editable_by_groups.exists()
+        or section.editable_by_groups.filter(id__in=role_group_ids).exists()
     )
 
-    if not allowed and not request.user.is_superuser:
+    if not allowed:
         return HttpResponseForbidden("Vous n'êtes pas autorisé à modifier cette section.")
 
     if request.method == "POST":
         form = ProcedureSectionEditForm(request.POST, instance=section)
         if form.is_valid():
-            s = form.save(commit=False)
-            s.procedure.updated_by = request.user
-            s.procedure.save(update_fields=["updated_by", "updated_at"])
-            s.save()
+            edited_section = form.save(commit=False)
+            edited_section.save()
+
+            procedure = section.procedure
+            procedure.updated_by = request.user
+            procedure.save(update_fields=["updated_by", "updated_at"])
+
             return redirect("procedure_detail", pk=section.procedure_id)
     else:
         form = ProcedureSectionEditForm(instance=section)
 
-    return render(request, "procedures/section_edit.html", {
-        "section": section,
-        "form": form,
-    })
+    return render(
+        request,
+        "procedures/section_edit.html",
+        {
+            "section": section,
+            "form": form,
+        },
+    )
 
 from django import forms
 from django.contrib.auth.decorators import login_required
