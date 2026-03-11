@@ -62,10 +62,11 @@ def procedure_detail(request, pk):
     )
 
     role_groups = _role_groups_for_user_in_school(request.user, procedure.school)
+    role_group_ids = set(role_groups.values_list("id", flat=True))
 
-    sections = (
+    sections_qs = (
         procedure.sections
-        .prefetch_related("visible_to_groups")
+        .prefetch_related("visible_to_groups", "editable_by_groups")
         .filter(
             Q(visible_to_groups__isnull=True) | Q(visible_to_groups__in=role_groups)
         )
@@ -73,8 +74,27 @@ def procedure_detail(request, pk):
         .order_by("order", "id")
     )
 
+    sections = []
+    for section in sections_qs:
+        editable_group_ids = set(section.editable_by_groups.values_list("id", flat=True))
+        section.can_edit = (
+            request.user.is_superuser
+            or not editable_group_ids
+            or bool(editable_group_ids & role_group_ids)
+        )
+        sections.append(section)
+
     documents = procedure.documents.all().order_by("-uploaded_at")
-    return render(request, "procedures/detail.html", {"procedure": procedure, "sections": sections, "documents": documents})
+
+    return render(
+        request,
+        "procedures/detail.html",
+        {
+            "procedure": procedure,
+            "sections": sections,
+            "documents": documents,
+        },
+    )
 
 def _is_director_in_school(user, school) -> bool:
     if user.is_superuser:
