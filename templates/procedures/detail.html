@@ -44,16 +44,26 @@
             {% for s in sections %}
               <div class="accordion-item">
                 <h2 class="accordion-header" id="h{{ s.id }}">
-                  <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button"
-                          data-bs-toggle="collapse" data-bs-target="#c{{ s.id }}">
+                  <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}"
+                          type="button"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#c{{ s.id }}">
                     {{ s.title }}
                   </button>
                 </h2>
-                <!--<div id="c{{ s.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
-                     data-bs-parent="#sectionsAcc">-->
-                <div id="c{{ s.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
-                     >
+
+                <div id="c{{ s.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}">
                   <div class="accordion-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                      <div></div>
+                      {% if s.can_edit %}
+                        <a class="btn btn-sm btn-outline-primary"
+                           href="{% url 'procedure_section_edit' s.id %}">
+                          Modifier
+                        </a>
+                      {% endif %}
+                    </div>
+
                     {% if s.body_html %}
                       {{ s.body_html|safe }}
                     {% else %}
@@ -81,7 +91,9 @@
           <div class="list-group">
             {% for d in documents %}
               <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-start"
-                 href="{{ d.file.url }}" target="_blank" rel="noopener">
+                 href="{{ d.file.url }}"
+                 target="_blank"
+                 rel="noopener">
                 <div class="me-2">
                   <div class="fw-semibold">{{ d.title }}</div>
                   <div class="small text-muted">{{ d.uploaded_at|date:"d/m/Y H:i" }}</div>
@@ -98,60 +110,3 @@
   </div>
 </div>
 {% endblock %}
-
-<!--<!doctype html>
-<html lang="fr">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ procedure.title }}</title>
-</head>
-<body>
-  <p>
-    <a href="{% url 'procedure_list' %}?school={{ procedure.school.id }}">
-      &larr; Retour aux procédures ({{ procedure.school.name }})
-    </a>
-  </p>
-
-  <h1>{{ procedure.title }}</h1>
-  <p>
-    Établissement : <strong>{{ procedure.school.name }}</strong><br>
-    Statut : {{ procedure.get_status_display }}<br>
-    Version : {{ procedure.version|default:"-" }}<br>
-    Dernière mise à jour : {{ procedure.updated_at }}
-  </p>
-
-  <hr>
-
-  <h2>Sections</h2>
-  {% for s in sections %}
-    <section style="margin-bottom: 24px;">
-      <h3>{{ s.title }}</h3>
-      <div>{{ s.body_html|safe }}</div>
-    </section>
-  {% empty %}
-    <p>Aucune section.</p>
-  {% endfor %}
-
-  <hr>
-
-  <h2>Documents (PDF, etc.)</h2>
-  {% for d in documents %}
-    <div>
-      <strong>{{ d.title }}</strong> ({{ d.get_doc_type_display }}) —
-      <a href="{{ d.file.url }}" target="_blank" rel="noopener">ouvrir</a>
-    </div>
-  {% empty %}
-    <p>Aucun document.</p>
-  {% endfor %}
-
-  <hr>
-  <p>
-    <a href="/admin/documents/procedure/{{ procedure.id }}/change/">
-      Modifier dans l’admin (Jazzmin)
-    </a>
-  </p>
-</body>
-</html>-->
-
-
