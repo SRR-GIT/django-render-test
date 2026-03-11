@@ -18,7 +18,7 @@ from .models import (
 )
 from .services import create_procedure_version
 
-
+ROLE_GROUP_NAMES = ["Direction", "Enseignants", "Doyen.ne"]
 # -------------------------
 # Groupes / permissions
 # -------------------------
