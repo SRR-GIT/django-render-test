@@ -18,6 +18,8 @@ from .models import (
 )
 from .services import create_procedure_version
 
+from django.forms import CheckboxSelectMultiple
+
 ROLE_GROUP_NAMES = ["Direction", "Enseignants", "Doyen.ne"]
 # -------------------------
 # Groupes / permissions
@@ -57,6 +59,9 @@ class ProcedureSectionInlineForm(forms.ModelForm):
     )
 
 
+ROLE_GROUP_NAMES = ["Direction", "Enseignants", "Doyen.ne"]
+
+
 class ProcedureTemplateSectionInlineForm(forms.ModelForm):
     class Meta:
         model = ProcedureTemplateSection
@@ -67,11 +72,26 @@ class ProcedureTemplateSectionInlineForm(forms.ModelForm):
         widget=CKEditorWidget(attrs={"style": "width: 100%; min-height: 240px;"}),
     )
 
+    visible_to_groups = forms.ModelMultipleChoiceField(
+        label="Visible par",
+        queryset=Group.objects.none(),
+        required=False,
+        widget=CheckboxSelectMultiple,
+        help_text="Si vide : visible pour tous. Sinon : visible uniquement pour ces rôles.",
+    )
+
+    editable_by_groups = forms.ModelMultipleChoiceField(
+        label="Modifiable par",
+        queryset=Group.objects.none(),
+        required=False,
+        widget=CheckboxSelectMultiple,
+        help_text="Si vide : modifiable par tous. Sinon : modifiable uniquement par ces rôles.",
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         role_qs = Group.objects.filter(name__in=ROLE_GROUP_NAMES).order_by("name")
-
         self.fields["visible_to_groups"].queryset = role_qs
         self.fields["editable_by_groups"].queryset = role_qs
 
@@ -114,7 +134,6 @@ class ProcedureTemplateSectionInline(admin.StackedInline):
     form = ProcedureTemplateSectionInlineForm
     extra = 0
     show_change_link = True
-    autocomplete_fields = ("visible_to_groups", "editable_by_groups")
 
     fieldsets = (
         (None, {"fields": ("order", "title", "key")}),
