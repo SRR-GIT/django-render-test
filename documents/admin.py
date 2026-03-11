@@ -67,6 +67,14 @@ class ProcedureTemplateSectionInlineForm(forms.ModelForm):
         widget=CKEditorWidget(attrs={"style": "width: 100%; min-height: 240px;"}),
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        role_qs = Group.objects.filter(name__in=ROLE_GROUP_NAMES).order_by("name")
+
+        self.fields["visible_to_groups"].queryset = role_qs
+        self.fields["editable_by_groups"].queryset = role_qs
+
 
 # -------------------------
 # INLINES
@@ -109,20 +117,24 @@ class ProcedureTemplateSectionInline(admin.StackedInline):
     autocomplete_fields = ("visible_to_groups", "editable_by_groups")
 
     fieldsets = (
-        (None, {
-            "fields": ("order", "title", "key"),
-        }),
-        ("Contenu", {
-            "fields": ("body_html",),
-        }),
-        ("Visibilité", {
-            "fields": ("visible_to_groups",),
-        }),
-        ("Édition", {
-            "fields": ("editable_by_groups",),
-        }),
+        (None, {"fields": ("order", "title", "key")}),
+        ("Contenu", {"fields": ("body_html",)}),
+        ("Visibilité", {"fields": ("visible_to_groups",)}),
+        ("Édition", {"fields": ("editable_by_groups",)}),
     )
 
+    def formfield_for_manytomany(self, db_field, request=None, **kwargs):
+        formfield = super().formfield_for_manytomany(db_field, request, **kwargs)
+        if db_field.name in ["visible_to_groups", "editable_by_groups"]:
+            if hasattr(formfield.widget, "can_add_related"):
+                formfield.widget.can_add_related = False
+            if hasattr(formfield.widget, "can_change_related"):
+                formfield.widget.can_change_related = False
+            if hasattr(formfield.widget, "can_delete_related"):
+                formfield.widget.can_delete_related = False
+            if hasattr(formfield.widget, "can_view_related"):
+                formfield.widget.can_view_related = False
+        return formfield
 
 class SchoolRoleInline(admin.TabularInline):
     model = SchoolRole
