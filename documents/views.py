@@ -93,7 +93,6 @@ def procedure_detail(request, pk):
         editable_group_ids = set(section.editable_by_groups.values_list("id", flat=True))
         section.can_edit = (
             request.user.is_superuser
-            or not editable_group_ids
             or bool(editable_group_ids & role_group_ids)
         )
         sections.append(section)
