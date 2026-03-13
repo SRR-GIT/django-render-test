@@ -1,14 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.db.models import Q
-from django.shortcuts import get_object_or_404, render
-from django.shortcuts import render, redirect
 from django.http import HttpResponseForbidden
-from .forms import ProcedureCreateForm
-from .services import create_procedure_from_template
-from .models import School
+from django.shortcuts import get_object_or_404, redirect, render
 
-from .models import School, SchoolRole, Procedure
+from .forms import ProcedureCreateForm, ProcedureSectionEditForm
+from .models import School, SchoolRole, Procedure, ProcedureSection, ProcedureTemplate
+
 
 def _schools_for_user(user):
     """
@@ -22,7 +20,7 @@ def _schools_for_user(user):
 
 def _role_groups_for_user_in_school(user, school):
     """
-    Groups (= rôles) de l'utilisateur DANS une école donnée via SchoolRole.
+    Groupes (= rôles) de l'utilisateur DANS une école donnée via SchoolRole.
     """
     if user.is_superuser:
         return Group.objects.all()
@@ -31,6 +29,21 @@ def _role_groups_for_user_in_school(user, school):
         school_roles__school=school,
         school_roles__users=user,
     ).distinct()
+
+
+def _is_director_in_school(user, school) -> bool:
+    """
+    L'utilisateur est directeur s'il appartient au groupe 'Direction'
+    dans cette école (via SchoolRole).
+    """
+    if user.is_superuser:
+        return True
+
+    return SchoolRole.objects.filter(
+        school=school,
+        group__name="Direction",
+        users=user,
+    ).exists()
 
 
 @login_required
@@ -52,6 +65,7 @@ def procedure_list(request):
         .order_by("-updated_at")
     )
     return render(request, "procedures/list.html", {"procedures": procedures})
+
 
 @login_required
 def procedure_detail(request, pk):
@@ -96,14 +110,13 @@ def procedure_detail(request, pk):
         },
     )
 
-def _is_director_in_school(user, school) -> bool:
-    if user.is_superuser:
-        return True
-    return school.roles.filter(group__name="Direction", users=user).exists()
 
 @login_required
 def procedure_create(request, school_id):
     school = get_object_or_404(School, pk=school_id)
+
+    if not _schools_for_user(request.user).filter(pk=school.pk).exists():
+        return HttpResponseForbidden("Accès refusé à cet établissement.")
 
     if not _is_director_in_school(request.user, school):
         return HttpResponseForbidden("Seuls les directeurs peuvent créer une procédure.")
@@ -115,14 +128,16 @@ def procedure_create(request, school_id):
 
             proc = Procedure.objects.create(
                 school=school,
-                title=template.title,  # ✅ on force le titre = modèle
+                title=template.title,
                 template=template,
                 status=Procedure.DRAFT,
                 updated_by=request.user,
             )
 
-            template_sections = template.sections.prefetch_related(
-                "visible_to_groups", "editable_by_groups"
+            template_sections = (
+                template.sections
+                .prefetch_related("visible_to_groups", "editable_by_groups")
+                .order_by("order", "id")
             )
 
             for ts in template_sections:
@@ -140,24 +155,14 @@ def procedure_create(request, school_id):
     else:
         form = ProcedureCreateForm()
 
-    return render(request, "procedures/create.html", {
-        "school": school,
-        "form": form,
-    })
-
-from django.shortcuts import get_object_or_404, redirect
-from django.http import HttpResponseForbidden
-from django.contrib.auth.decorators import login_required
-from .forms import ProcedureSectionEditForm
-from .models import ProcedureSection
-
-@login_required
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
-from django.shortcuts import get_object_or_404, redirect, render
-
-from .forms import ProcedureSectionEditForm
-from .models import ProcedureSection
+    return render(
+        request,
+        "procedures/create.html",
+        {
+            "school": school,
+            "form": form,
+        },
+    )
 
 
 @login_required
@@ -171,7 +176,6 @@ def procedure_section_edit(request, section_id):
 
     school = section.procedure.school
     role_groups = _role_groups_for_user_in_school(request.user, school)
-
     role_group_ids = role_groups.values_list("id", flat=True)
 
     allowed = (
@@ -205,104 +209,3 @@ def procedure_section_edit(request, section_id):
             "form": form,
         },
     )
-
-from django import forms
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
-from django.shortcuts import get_object_or_404, redirect, render
-
-from .models import School, SchoolRole, Procedure, ProcedureSection, ProcedureTemplate
-
-
-def _schools_for_user(user):
-    if user.is_superuser:
-        return School.objects.all()
-    return School.objects.filter(roles__users=user).distinct()
-
-
-def _role_groups_for_user_in_school(user, school):
-    from django.contrib.auth.models import Group
-    if user.is_superuser:
-        return Group.objects.all()
-    return Group.objects.filter(
-        school_roles__school=school,
-        school_roles__users=user,
-    ).distinct()
-
-
-def _is_director_in_school(user, school) -> bool:
-    """
-    ✅ règle simple : le directeur = appartient au groupe nommé 'Direction'
-    dans cette école (via SchoolRole).
-    """
-    if user.is_superuser:
-        return True
-    return SchoolRole.objects.filter(
-        school=school,
-        group__name="Direction",
-        users=user,
-    ).exists()
-
-
-class ProcedureCreateForm(forms.Form):
-    title = forms.CharField(
-        label="Titre",
-        max_length=200,
-        widget=forms.TextInput(attrs={
-            "class": "form-control",
-            "readonly": "readonly",
-        }),
-    )
-
-    template = forms.ModelChoiceField(
-        label="Modèle",
-        queryset=ProcedureTemplate.objects.filter(is_active=True).order_by("title"),
-        widget=forms.Select(attrs={"class": "form-select"}),
-    )
-
-
-@login_required
-def procedure_create(request, school_id):
-    school = get_object_or_404(School, pk=school_id)
-
-    # ✅ sécurité : il faut avoir accès à l’école + être “Direction”
-    if not _schools_for_user(request.user).filter(pk=school.pk).exists():
-        return HttpResponseForbidden("Accès refusé à cet établissement.")
-    if not _is_director_in_school(request.user, school):
-        return HttpResponseForbidden("Seuls les directeurs peuvent créer une procédure.")
-
-    if request.method == "POST":
-        form = ProcedureCreateForm(request.POST)
-        if form.is_valid():
-            template = form.cleaned_data["template"]
-            proc = Procedure.objects.create(
-                school=school,
-                title=form.cleaned_data["title"],
-                template=template,
-                status=Procedure.DRAFT,
-                updated_by=request.user,
-            )
-
-            # ✅ copier les sections du template -> procedure sections
-            template_sections = (
-                template.sections
-                .prefetch_related("visible_to_groups", "editable_by_groups")
-                .order_by("order", "id")
-            )
-
-            for ts in template_sections:
-                ps = ProcedureSection.objects.create(
-                    procedure=proc,
-                    title=ts.title,
-                    key=ts.key,
-                    order=ts.order,
-                    body_html=ts.body_html,
-                )
-                ps.visible_to_groups.set(ts.visible_to_groups.all())
-                ps.editable_by_groups.set(ts.editable_by_groups.all())
-
-            return redirect("procedure_detail", pk=proc.pk)
-    else:
-        form = ProcedureCreateForm()
-
-    return render(request, "procedures/create.html", {"school": school, "form": form})
