@@ -7,7 +7,14 @@ from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import ProcedureCreateForm, ProcedureSectionEditForm, ProcedureSectionVariablesForm
-from .models import School, SchoolRole, Procedure, ProcedureSection, ProcedureTemplate
+from .models import (
+    School,
+    SchoolRole,
+    Procedure,
+    ProcedureSection,
+    ProcedureTemplate,
+    ProcedureSectionVariable,
+)
 
 
 def _schools_for_user(user):
