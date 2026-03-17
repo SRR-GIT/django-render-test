@@ -137,8 +137,10 @@ def procedure_create(request, school_id):
     if not _is_director_in_school(request.user, school):
         return HttpResponseForbidden("Seuls les directeurs peuvent créer une procédure.")
 
+    template_queryset = ProcedureTemplate.objects.filter(is_active=True).order_by("title")
+
     if request.method == "POST":
-        form = ProcedureCreateForm(request.POST)
+        form = ProcedureCreateForm(request.POST, template_queryset=template_queryset)
         if form.is_valid():
             template = form.cleaned_data["template"]
 
@@ -152,7 +154,7 @@ def procedure_create(request, school_id):
 
             template_sections = (
                 template.sections
-                .prefetch_related("visible_to_groups", "editable_by_groups")
+                .prefetch_related("visible_to_groups", "editable_by_groups", "variables")
                 .order_by("order", "id")
             )
 
@@ -174,9 +176,10 @@ def procedure_create(request, school_id):
                         label=var.label,
                         value=var.default_value,
                     )
+
             return redirect("procedure_detail", pk=proc.pk)
     else:
-        form = ProcedureCreateForm()
+        form = ProcedureCreateForm(template_queryset=template_queryset)
 
     return render(
         request,
