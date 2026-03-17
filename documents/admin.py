@@ -2,6 +2,7 @@ from django.contrib import admin, messages
 from django.contrib.auth.admin import GroupAdmin
 from django.contrib.auth.models import Group
 from django import forms
+from django.forms import CheckboxSelectMultiple
 
 from ckeditor.widgets import CKEditorWidget
 
@@ -10,19 +11,20 @@ from .models import (
     SchoolRole,
     ProcedureTemplate,
     ProcedureTemplateSection,
+    ProcedureTemplateSectionVariable,
     Procedure,
     ProcedureSection,
+    ProcedureSectionVariable,
     ProcedureDocument,
     ProcedureVersion,
     ProcedureSectionVersion,
-    ProcedureTemplateSectionVariable,
-    ProcedureSectionVariable,
 )
 from .services import create_procedure_version
 
-from django.forms import CheckboxSelectMultiple
 
 ROLE_GROUP_NAMES = ["Direction", "Enseignants", "Doyen.ne"]
+
+
 # -------------------------
 # Groupes / permissions
 # -------------------------
@@ -61,9 +63,6 @@ class ProcedureSectionInlineForm(forms.ModelForm):
     )
 
 
-ROLE_GROUP_NAMES = ["Direction", "Enseignants", "Doyen.ne"]
-
-
 class ProcedureTemplateSectionInlineForm(forms.ModelForm):
     class Meta:
         model = ProcedureTemplateSection
@@ -87,12 +86,11 @@ class ProcedureTemplateSectionInlineForm(forms.ModelForm):
         queryset=Group.objects.none(),
         required=False,
         widget=CheckboxSelectMultiple,
-        help_text="Si vide : modifiable par tous. Sinon : modifiable uniquement par ces rôles.",
+        help_text="Si vide : modifiable par personne. Sinon : modifiable uniquement par ces rôles.",
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         role_qs = Group.objects.filter(name__in=ROLE_GROUP_NAMES).order_by("name")
         self.fields["visible_to_groups"].queryset = role_qs
         self.fields["editable_by_groups"].queryset = role_qs
@@ -121,7 +119,7 @@ class ProcedureSectionInline(admin.StackedInline):
         }),
         ("Édition", {
             "fields": ("editable_by_groups",),
-            "description": "Si vide : modifiable par tous. Sinon : modifiable uniquement par ces rôles.",
+            "description": "Si vide : modifiable par personne. Sinon : modifiable uniquement par ces rôles.",
         }),
     )
 
@@ -157,6 +155,7 @@ class ProcedureTemplateSectionInline(admin.StackedInline):
                 formfield.widget.can_view_related = False
         return formfield
 
+
 class SchoolRoleInline(admin.TabularInline):
     model = SchoolRole
     extra = 0
@@ -181,11 +180,20 @@ class ProcedureVersionInline(admin.TabularInline):
     show_change_link = True
     ordering = ("-number",)
 
+
 class ProcedureTemplateSectionVariableInline(admin.TabularInline):
     model = ProcedureTemplateSectionVariable
     extra = 0
     fields = ("key", "label", "default_value")
-    
+
+
+class ProcedureSectionVariableInline(admin.TabularInline):
+    model = ProcedureSectionVariable
+    extra = 0
+    fields = ("key", "label", "value")
+    readonly_fields = ("key", "label")
+
+
 # -------------------------
 # ÉTABLISSEMENTS & RÔLES
 # -------------------------
@@ -212,6 +220,14 @@ class ProcedureTemplateAdmin(admin.ModelAdmin):
     list_display = ("title", "is_active", "updated_at")
     search_fields = ("title",)
     inlines = [ProcedureTemplateSectionInline]
+
+
+@admin.register(ProcedureTemplateSection)
+class ProcedureTemplateSectionAdmin(admin.ModelAdmin):
+    inlines = [ProcedureTemplateSectionVariableInline]
+
+    def has_module_permission(self, request):
+        return False
 
 
 # -------------------------
@@ -246,7 +262,7 @@ class ProcedureAdmin(admin.ModelAdmin):
     def make_snapshot_version(self, request, queryset):
         created = 0
         for proc in queryset:
-            v = create_procedure_version(proc, user=request.user, comment="Snapshot admin")
+            create_procedure_version(proc, user=request.user, comment="Snapshot admin")
             created += 1
         messages.success(request, f"{created} version(s) créée(s).")
 
@@ -256,19 +272,13 @@ class ProcedureAdmin(admin.ModelAdmin):
 # -------------------------
 @admin.register(ProcedureSection)
 class ProcedureSectionAdmin(admin.ModelAdmin):
+    inlines = [ProcedureSectionVariableInline]
+
     def has_module_permission(self, request):
         return False
 
 
 @admin.register(ProcedureDocument)
 class ProcedureDocumentAdmin(admin.ModelAdmin):
-    def has_module_permission(self, request):
-        return False
-
-
-@admin.register(ProcedureTemplateSection)
-class ProcedureTemplateSectionAdmin(admin.ModelAdmin):
-    inlines = [ProcedureTemplateSectionVariableInline]
-
     def has_module_permission(self, request):
         return False
