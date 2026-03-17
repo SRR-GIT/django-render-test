@@ -150,6 +150,13 @@ def procedure_create(request, school_id):
                 ps.visible_to_groups.set(ts.visible_to_groups.all())
                 ps.editable_by_groups.set(ts.editable_by_groups.all())
 
+                for var in ts.variables.all():
+                    ProcedureSectionVariable.objects.create(
+                        section=ps,
+                        key=var.key,
+                        label=var.label,
+                        value=var.default_value,
+                    )
             return redirect("procedure_detail", pk=proc.pk)
     else:
         form = ProcedureCreateForm()
