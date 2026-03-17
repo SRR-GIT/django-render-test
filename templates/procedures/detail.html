@@ -56,12 +56,21 @@
                   <div class="accordion-body">
                     <div class="d-flex justify-content-between align-items-start mb-3">
                       <div></div>
-                      {% if s.can_edit %}
-                        <a class="btn btn-sm btn-outline-primary"
-                           href="{% url 'procedure_section_edit' s.id %}">
-                          Modifier
-                        </a>
-                      {% endif %}
+                      <div class="d-flex gap-2">
+                        {% if s.can_edit %}
+                          <a class="btn btn-sm btn-outline-primary"
+                             href="{% url 'procedure_section_edit' s.id %}">
+                            Modifier le texte
+                          </a>
+                    
+                          {% if s.variables.all %}
+                            <a class="btn btn-sm btn-primary"
+                               href="{% url 'procedure_section_variables_edit' s.id %}">
+                              Modifier les variables
+                            </a>
+                          {% endif %}
+                        {% endif %}
+                      </div>
                     </div>
 
                     {% if s.body_html %}
