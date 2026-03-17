@@ -2,6 +2,16 @@ from django import forms
 from ckeditor.widgets import CKEditorWidget
 from .models import ProcedureTemplate, ProcedureSection, ProcedureSectionVariable
 
+class ProcedureSectionEditForm(forms.ModelForm):
+    class Meta:
+        model = ProcedureSection
+        fields = ["body_html"]
+
+    body_html = forms.CharField(
+        required=False,
+        widget=CKEditorWidget(attrs={"style": "width: 100%; min-height: 300px;"}),
+    )
+    
 class ProcedureCreateForm(forms.Form):
     title = forms.CharField(
         label="Titre",
@@ -14,25 +24,16 @@ class ProcedureCreateForm(forms.Form):
 
     template = forms.ModelChoiceField(
         label="Modèle",
-        queryset=None,
+        queryset=ProcedureTemplate.objects.none(),
         widget=forms.Select(attrs={"class": "form-select"}),
     )
 
-    def __init__(self, *args, **kwargs):
-        template_queryset = kwargs.pop("template_queryset", None)
-        super().__init__(*args, **kwargs)
-        if template_queryset is not None:
-            self.fields["template"].queryset = template_queryset
+    def __init__(self, *args, template_queryset=None, **kwargs):
+       super().__init__(*args, **kwargs)
+       if template_queryset is None:
+           template_queryset = ProcedureTemplate.objects.filter(is_active=True).order_by("title")
+       self.fields["template"].queryset = template_queryset
 
-class ProcedureSectionEditForm(forms.ModelForm):
-    class Meta:
-        model = ProcedureSection
-        fields = ["body_html"]
-
-    body_html = forms.CharField(
-        required=False,
-        widget=CKEditorWidget(attrs={"style": "width: 100%; min-height: 300px;"}),
-    )
 
 class ProcedureSectionVariablesForm(forms.Form):
     def __init__(self, *args, section=None, **kwargs):
