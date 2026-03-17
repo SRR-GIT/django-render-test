@@ -15,6 +15,8 @@ from .models import (
     ProcedureDocument,
     ProcedureVersion,
     ProcedureSectionVersion,
+    ProcedureTemplateSectionVariable,
+    ProcedureSectionVariable,
 )
 from .services import create_procedure_version
 
@@ -179,7 +181,11 @@ class ProcedureVersionInline(admin.TabularInline):
     show_change_link = True
     ordering = ("-number",)
 
-
+class ProcedureTemplateSectionVariableInline(admin.TabularInline):
+    model = ProcedureTemplateSectionVariable
+    extra = 0
+    fields = ("key", "label", "default_value")
+    
 # -------------------------
 # ÉTABLISSEMENTS & RÔLES
 # -------------------------
@@ -219,7 +225,12 @@ class ProcedureVersionAdmin(admin.ModelAdmin):
     inlines = [ProcedureSectionVersionInline]
     readonly_fields = ("procedure", "number", "created_at", "created_by")
 
+@admin.register(ProcedureTemplateSection)
+class ProcedureTemplateSectionAdmin(admin.ModelAdmin):
+    inlines = [ProcedureTemplateSectionVariableInline]
 
+    def has_module_permission(self, request):
+        return False
 # -------------------------
 # PROCÉDURES
 # -------------------------
