@@ -8,4 +8,11 @@ urlpatterns = [
     path("schools/<int:school_id>/procedures/new/", views.procedure_create, name="procedure_create"),
     path("sections/<int:section_id>/edit/", views.procedure_section_edit, name="procedure_section_edit"),
     path("schools/<int:school_id>/procedures/new/", views.procedure_create, name="procedure_create"),
+    path(
+        "sections/<int:section_id>/variables/edit/",
+        views.procedure_section_variables_edit,
+        name="procedure_section_variables_edit",
+    ),
 ]
+
+
