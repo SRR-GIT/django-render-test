@@ -148,6 +148,41 @@ class ProcedureSection(models.Model):
     def __str__(self):
         return f"{self.procedure}: {self.title}"
 
+class ProcedureTemplateSectionVariable(models.Model):
+    template_section = models.ForeignKey(
+        "ProcedureTemplateSection",
+        on_delete=models.CASCADE,
+        related_name="variables",
+    )
+    key = models.SlugField(max_length=100)
+    label = models.CharField(max_length=200)
+    default_value = models.TextField(blank=True)
+
+    class Meta:
+        unique_together = [("template_section", "key")]
+        verbose_name = "Variable (modèle)"
+        verbose_name_plural = "Variables (modèle)"
+
+    def __str__(self):
+        return f"{self.template_section} → {self.label}"
+
+class ProcedureSectionVariable(models.Model):
+    section = models.ForeignKey(
+        "ProcedureSection",
+        on_delete=models.CASCADE,
+        related_name="variables",
+    )
+    key = models.SlugField(max_length=100)
+    label = models.CharField(max_length=200)
+    value = models.TextField(blank=True)
+
+    class Meta:
+        unique_together = [("section", "key")]
+        verbose_name = "Variable (procédure)"
+        verbose_name_plural = "Variables (procédure)"
+
+    def __str__(self):
+        return f"{self.section} → {self.label}"
 
 class ProcedureDocument(models.Model):
     PLAN = "plan"
