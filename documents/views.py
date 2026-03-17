@@ -177,7 +177,7 @@ def procedure_section_edit(request, section_id):
     role_groups = _role_groups_for_user_in_school(request.user, school)
     role_group_ids = role_groups.values_list("id", flat=True)
 
-      allowed = (
+    allowed = (
         request.user.is_superuser
         or section.editable_by_groups.filter(id__in=role_group_ids).exists()
     )
