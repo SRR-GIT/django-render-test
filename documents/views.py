@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.db.models import Q
@@ -80,7 +82,7 @@ def procedure_detail(request, pk):
 
     sections_qs = (
         procedure.sections
-        .prefetch_related("visible_to_groups", "editable_by_groups")
+        .prefetch_related("visible_to_groups", "editable_by_groups", "variables")
         .filter(
             Q(visible_to_groups__isnull=True) | Q(visible_to_groups__in=role_groups)
         )
@@ -95,6 +97,22 @@ def procedure_detail(request, pk):
             request.user.is_superuser
             or bool(editable_group_ids & role_group_ids)
         )
+
+        rendered_html = section.body_html or ""
+
+        variables_map = {
+            var.key: (var.value or "")
+            for var in section.variables.all()
+        }
+
+        for key, value in variables_map.items():
+            rendered_html = re.sub(
+                rf"{{{{\s*{re.escape(key)}\s*}}}}",
+                value,
+                rendered_html,
+            )
+
+        section.rendered_html = rendered_html
         sections.append(section)
 
     documents = procedure.documents.all().order_by("-uploaded_at")
@@ -108,7 +126,6 @@ def procedure_detail(request, pk):
             "documents": documents,
         },
     )
-
 
 @login_required
 def procedure_create(request, school_id):
