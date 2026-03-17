@@ -65,7 +65,7 @@
                     </div>
 
                     {% if s.body_html %}
-                      {{ s.body_html|safe }}
+                      {{ s.rendered_html|safe }}
                     {% else %}
                       <p class="text-muted mb-0">Aucun contenu.</p>
                     {% endif %}
