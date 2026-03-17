@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms import ProcedureCreateForm, ProcedureSectionEditForm
+from .forms import ProcedureCreateForm, ProcedureSectionEditForm, ProcedureSectionVariablesForm
 from .models import School, SchoolRole, Procedure, ProcedureSection, ProcedureTemplate
 
 
@@ -226,6 +226,49 @@ def procedure_section_edit(request, section_id):
     return render(
         request,
         "procedures/section_edit.html",
+        {
+            "section": section,
+            "form": form,
+        },
+    )
+
+@login_required
+def procedure_section_variables_edit(request, section_id):
+    section = get_object_or_404(
+        ProcedureSection.objects
+        .select_related("procedure__school")
+        .prefetch_related("editable_by_groups", "variables"),
+        pk=section_id,
+    )
+
+    school = section.procedure.school
+    role_groups = _role_groups_for_user_in_school(request.user, school)
+    role_group_ids = role_groups.values_list("id", flat=True)
+
+    allowed = (
+        request.user.is_superuser
+        or section.editable_by_groups.filter(id__in=role_group_ids).exists()
+    )
+
+    if not allowed:
+        return HttpResponseForbidden("Vous n'êtes pas autorisé à modifier les variables de cette section.")
+
+    if request.method == "POST":
+        form = ProcedureSectionVariablesForm(request.POST, section=section)
+        if form.is_valid():
+            form.save()
+
+            procedure = section.procedure
+            procedure.updated_by = request.user
+            procedure.save(update_fields=["updated_by", "updated_at"])
+
+            return redirect("procedure_detail", pk=section.procedure_id)
+    else:
+        form = ProcedureSectionVariablesForm(section=section)
+
+    return render(
+        request,
+        "procedures/section_variables_edit.html",
         {
             "section": section,
             "form": form,
