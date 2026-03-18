@@ -62,13 +62,13 @@
                              href="{% url 'procedure_section_edit' s.id %}">
                             Modifier le texte
                           </a>
+                        {% endif %}
                     
-                          {% if s.variables.all %}
-                            <a class="btn btn-sm btn-primary"
-                               href="{% url 'procedure_section_variables_edit' s.id %}">
-                              Modifier les variables
-                            </a>
-                          {% endif %}
+                        {% if s.has_variables and s.can_edit_variables %}
+                          <a class="btn btn-sm btn-primary"
+                             href="{% url 'procedure_section_variables_edit' s.id %}">
+                            Modifier les variables
+                          </a>
                         {% endif %}
                       </div>
                     </div>
