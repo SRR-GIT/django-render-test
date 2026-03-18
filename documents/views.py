@@ -97,32 +97,30 @@ def procedure_detail(request, pk):
         .order_by("order", "id")
     )
 
-   sections = []
-   for section in sections_qs:
-        editable_group_ids = set(section.editable_by_groups.values_list("id", flat=True))
-    
-        # droit de modifier le texte complet
+    sections = []
+    for section in sections_qs:
+        editable_group_ids = set(
+            section.editable_by_groups.values_list("id", flat=True)
+        )
+
         section.can_edit = (
             request.user.is_superuser
             or bool(editable_group_ids & role_group_ids)
         )
-    
-        # droit de modifier seulement les variables
+
         section.can_edit_variables = (
             request.user.is_superuser
             or _is_director_in_school(request.user, procedure.school)
         )
-    
+
         rendered_html = section.body_html or ""
-    
         for var in section.variables.all():
             pattern = rf"{{{{\s*{re.escape(var.key)}\s*}}}}"
             value = var.value or ""
             rendered_html = re.sub(pattern, value, rendered_html)
-    
+
         section.rendered_html = rendered_html
         section.has_variables = section.variables.exists()
-    
         sections.append(section)
 
     documents = procedure.documents.all().order_by("-uploaded_at")
