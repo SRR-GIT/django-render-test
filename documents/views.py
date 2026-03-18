@@ -260,7 +260,7 @@ def procedure_section_variables_edit(request, section_id):
 
     allowed = (
         request.user.is_superuser
-        or section.editable_by_groups.filter(id__in=role_group_ids).exists()
+        or _is_director_in_school(request.user, school)
     )
 
     if not allowed:
