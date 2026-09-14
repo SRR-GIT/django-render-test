@@ -80,51 +80,113 @@ def procedure_list(request):
 @login_required
 def procedure_detail(request, pk):
     schools = _schools_for_user(request.user)
+
     procedure = get_object_or_404(
-        Procedure.objects.select_related("school").filter(school__in=schools),
+        Procedure.objects
+        .select_related("school")
+        .filter(school__in=schools),
         pk=pk,
     )
 
-    role_groups = _role_groups_for_user_in_school(request.user, procedure.school)
-    role_group_ids = set(role_groups.values_list("id", flat=True))
+    role_groups = _role_groups_for_user_in_school(
+        request.user,
+        procedure.school,
+    )
+
+    role_group_ids = set(
+        role_groups.values_list("id", flat=True)
+    )
 
     sections_qs = (
         procedure.sections
-        .prefetch_related("visible_to_groups", "editable_by_groups", "variables")
+        .prefetch_related(
+            "visible_to_groups",
+            "editable_by_groups",
+            "variables",
+        )
         .filter(
-            Q(visible_to_groups__isnull=True) | Q(visible_to_groups__in=role_groups)
+            Q(visible_to_groups__isnull=True)
+            | Q(visible_to_groups__in=role_groups)
         )
         .distinct()
         .order_by("order", "id")
     )
 
+    # Variables globales administratives
+    global_variables = list(
+        GlobalVariable.objects.all()
+    )
+
     sections = []
+
     for section in sections_qs:
         editable_group_ids = set(
-            section.editable_by_groups.values_list("id", flat=True)
+            section.editable_by_groups.values_list(
+                "id",
+                flat=True,
+            )
         )
 
+        # Droit de modifier le texte complet
         section.can_edit = (
             request.user.is_superuser
-            or bool(editable_group_ids & role_group_ids)
+            or bool(
+                editable_group_ids & role_group_ids
+            )
         )
 
+        # Droit de modifier les variables locales
         section.can_edit_variables = (
             request.user.is_superuser
-            or _is_director_in_school(request.user, procedure.school)
+            or _is_director_in_school(
+                request.user,
+                procedure.school,
+            )
         )
 
         rendered_html = section.body_html or ""
+
+        # -----------------------------------------
+        # Variables locales
+        # Exemple : {{ autorites_communales }}
+        # -----------------------------------------
         for var in section.variables.all():
             pattern = rf"{{{{\s*{re.escape(var.key)}\s*}}}}"
             value = var.value or ""
-            rendered_html = re.sub(pattern, value, rendered_html)
+
+            rendered_html = re.sub(
+                pattern,
+                value,
+                rendered_html,
+            )
+
+        # -----------------------------------------
+        # Variables globales admin
+        # Exemple : {{ admin.numero_cantonal }}
+        # -----------------------------------------
+        for var in global_variables:
+            pattern = rf"{{{{\s*admin\.{re.escape(var.key)}\s*}}}}"
+            value = var.value or ""
+
+            rendered_html = re.sub(
+                pattern,
+                value,
+                rendered_html,
+            )
 
         section.rendered_html = rendered_html
-        section.has_variables = section.variables.exists()
+
+        section.has_variables = (
+            section.variables.exists()
+        )
+
         sections.append(section)
 
-    documents = procedure.documents.all().order_by("-uploaded_at")
+    documents = (
+        procedure.documents
+        .all()
+        .order_by("-uploaded_at")
+    )
 
     return render(
         request,
