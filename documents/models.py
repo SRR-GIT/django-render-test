@@ -233,3 +233,34 @@ class ProcedureSectionVersion(models.Model):
 
     class Meta:
         ordering = ["order", "id"]
+
+class GlobalVariable(models.Model):
+    key = models.CharField(
+        max_length=100,
+        unique=True,
+        verbose_name="Clé",
+        help_text="Exemple : numero_cantonal",
+    )
+
+    label = models.CharField(
+        max_length=255,
+        verbose_name="Libellé",
+    )
+
+    value = models.TextField(
+        blank=True,
+        verbose_name="Valeur",
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Dernière modification",
+    )
+
+    class Meta:
+        verbose_name = "Variable globale"
+        verbose_name_plural = "Variables globales"
+        ordering = ["label"]
+
+    def __str__(self):
+        return f"{self.label} ({self.key})"
