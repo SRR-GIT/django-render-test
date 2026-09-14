@@ -14,6 +14,7 @@ from .models import (
     ProcedureSection,
     ProcedureTemplate,
     ProcedureSectionVariable,
+    GlobalVariable,
 )
 
 
