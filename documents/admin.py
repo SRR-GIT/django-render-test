@@ -18,6 +18,7 @@ from .models import (
     ProcedureDocument,
     ProcedureVersion,
     ProcedureSectionVersion,
+    GlobalVariable,
 )
 from .services import create_procedure_version
 
@@ -282,3 +283,29 @@ class ProcedureSectionAdmin(admin.ModelAdmin):
 class ProcedureDocumentAdmin(admin.ModelAdmin):
     def has_module_permission(self, request):
         return False
+
+@admin.register(GlobalVariable)
+class GlobalVariableAdmin(admin.ModelAdmin):
+    list_display = (
+        "label",
+        "key",
+        "value",
+        "updated_at",
+    )
+
+    search_fields = (
+        "label",
+        "key",
+        "value",
+    )
+
+    readonly_fields = (
+        "updated_at",
+    )
+
+    fields = (
+        "label",
+        "key",
+        "value",
+        "updated_at",
+    )
