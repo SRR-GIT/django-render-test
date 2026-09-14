@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("documents", "0009_nom_de_ta_derniere_migration"),
+        ("documents", "0010_section_variable.py"),
     ]
 
     operations = [
